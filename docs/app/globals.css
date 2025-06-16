@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --font-inter: 'Inter', system-ui, sans-serif;
+        --font-mono: 'JetBrains Mono', Monaco, 'Cascadia Code', 'Segoe UI Mono', 'Roboto Mono', monospace;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        font-feature-settings: 'rlig' 1, 'calt' 1;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-gray-100 dark:bg-gray-800;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-gray-400 dark:bg-gray-500;
+    }
+}
+
+@layer components {
+
+    /* Code block styling */
+    .code-block {
+        @apply bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 overflow-x-auto;
+    }
+
+    .code-block pre {
+        @apply m-0 font-mono text-sm;
+    }
+
+    /* Gradient text */
+    .gradient-text {
+        @apply bg-gradient-to-r from-formax-600 to-formax-400 bg-clip-text text-transparent;
+    }
+
+    /* Glass effect */
+    .glass {
+        @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50;
+    }
+
+    /* Component preview container */
+    .component-preview {
+        @apply relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 overflow-hidden;
+    }
+
+    .component-preview::before {
+        content: '';
+        @apply absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none;
+    }
+
+    /* Feature card */
+    .feature-card {
+        @apply group relative bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 hover:-translate-y-1;
+    }
+
+    .feature-card::before {
+        content: '';
+        @apply absolute inset-0 bg-gradient-to-r from-formax-500/5 to-formax-600/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300;
+    }
+
+    /* Navigation styles */
+    .nav-link {
+        @apply relative text-gray-600 dark:text-gray-300 hover:text-formax-600 dark:hover:text-formax-400 transition-colors duration-200;
+    }
+
+    .nav-link.active {
+        @apply text-formax-600 dark:text-formax-400;
+    }
+
+    .nav-link.active::after {
+        content: '';
+        @apply absolute -bottom-1 left-0 right-0 h-0.5 bg-formax-600 dark:bg-formax-400 rounded-full;
+    }
+
+    /* Button variants */
+    .btn-primary {
+        @apply bg-formax-600 hover:bg-formax-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105;
+    }
+
+    .btn-secondary {
+        @apply bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium px-6 py-3 rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200;
+    }
+
+    /* Hero section */
+    .hero-gradient {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%);
+    }
+
+    /* Documentation styles */
+    .prose {
+        @apply max-w-none text-gray-700 dark:text-gray-300;
+    }
+
+    .prose h1 {
+        @apply text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4;
+    }
+
+    .prose h2 {
+        @apply text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-4;
+    }
+
+    .prose h3 {
+        @apply text-xl font-semibold text-gray-900 dark:text-gray-100 mt-6 mb-3;
+    }
+
+    .prose p {
+        @apply mb-4 leading-relaxed;
+    }
+
+    .prose code {
+        @apply bg-gray-100 dark:bg-gray-800 text-formax-600 dark:text-formax-400 px-1.5 py-0.5 rounded text-sm font-mono;
+    }
+
+    .prose pre {
+        @apply bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 overflow-x-auto mb-4;
+    }
+
+    .prose pre code {
+        @apply bg-transparent text-gray-800 dark:text-gray-200 p-0;
+    }
+
+    .prose ul {
+        @apply list-disc list-inside mb-4 space-y-2;
+    }
+
+    .prose ol {
+        @apply list-decimal list-inside mb-4 space-y-2;
+    }
+
+    .prose li {
+        @apply leading-relaxed;
+    }
+
+    .prose a {
+        @apply text-formax-600 dark:text-formax-400 hover:underline;
+    }
+
+    .prose blockquote {
+        @apply border-l-4 border-formax-500 pl-4 italic text-gray-600 dark:text-gray-400 mb-4;
+    }
+
+    .prose table {
+        @apply w-full border-collapse border border-gray-200 dark:border-gray-700 mb-4;
+    }
+
+    .prose th,
+    .prose td {
+        @apply border border-gray-200 dark:border-gray-700 px-4 py-2 text-left;
+    }
+
+    .prose th {
+        @apply bg-gray-50 dark:bg-gray-800 font-semibold;
+    }
+}
+
+@layer utilities {
+    .bg-grid-pattern {
+        background-image:
+            linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 0, 0, .1) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+
+    .text-balance {
+        text-wrap: balance;
+    }
+}

@@ -10,15 +10,19 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     // If React Hook Form methods are provided, wrap with FormProvider
     if (formMethods && formMethods.formState) {
         try {
-            // Dynamic import for React Hook Form to avoid requiring it as a dependency
-            const { FormProvider: RHFFormProvider } = eval('require')('react-hook-form');
-            return (
-                <RHFFormProvider {...formMethods}>
-                    <div className={cn('formax-form-provider', className)}>
-                        {children}
-                    </div>
-                </RHFFormProvider>
-            );
+            // Try to import React Hook Form dynamically without eval
+            const rhf = require('react-hook-form');
+            const RHFFormProvider = rhf.FormProvider;
+
+            if (RHFFormProvider) {
+                return (
+                    <RHFFormProvider {...formMethods}>
+                        <div className={cn('formax-form-provider', className)}>
+                            {children}
+                        </div>
+                    </RHFFormProvider>
+                );
+            }
         } catch (error) {
             console.warn('React Hook Form not found. Using basic wrapper.');
         }

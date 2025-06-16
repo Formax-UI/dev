@@ -1,6 +1,6 @@
 {
     "name": "formax-ui",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "A focused UI component library for building beautiful and accessible forms in React",
     "main": "dist/index.js",
     "module": "dist/index.es.js",
@@ -9,13 +9,14 @@
         "dist"
     ],
     "scripts": {
-        "build": "rollup -c",
+        "build": "node build-docs.js",
+        "build:lib": "rollup -c",
         "dev": "rollup -c -w",
         "playground": "cd playground && npm run dev",
         "type-check": "tsc --noEmit",
         "lint": "eslint src --ext .ts,.tsx",
         "lint:fix": "eslint src --ext .ts,.tsx --fix",
-        "prepublishOnly": "npm run build"
+        "prepublishOnly": "npm run build:lib"
     },
     "keywords": [
         "react",

@@ -15,7 +15,6 @@ import {
     Zap
 } from 'lucide-react';
 import Link from 'next/link';
-import React from 'react';
 
 const features = [
     {
@@ -171,7 +170,7 @@ export default function HomePage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                                className="feature-card"
+                                className="feature-card group"
                             >
                                 <div className={`w-12 h-12 ${feature.color} bg-current/10 rounded-lg flex items-center justify-center mb-4`}>
                                     <feature.icon className={`w-6 h-6 ${feature.color}`} />

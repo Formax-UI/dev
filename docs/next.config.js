@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
+  allowedDevOrigins: ['127.0.0.1'],
   transpilePackages: ['formax-ui'],
   images: {
     unoptimized: true,
@@ -14,4 +12,4 @@ const nextConfig = {
   assetPrefix: '',
 }
 
-module.exports = nextConfig 
+module.exports = nextConfig

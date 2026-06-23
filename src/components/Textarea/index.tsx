@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useRef } from 'react';
+import React, { forwardRef, useCallback, useEffect, useRef } from 'react';
 import { TextareaProps } from '../../types';
 import { cn } from '../../utils/cn';
 
@@ -27,7 +27,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         const internalRef = useRef<HTMLTextAreaElement>(null);
         const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
 
-        const adjustHeight = () => {
+        const adjustHeight = useCallback(() => {
             if (autoResize && textareaRef.current) {
                 const textarea = textareaRef.current;
                 textarea.style.height = 'auto';
@@ -39,13 +39,13 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                 const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight);
                 textarea.style.height = `${newHeight}px`;
             }
-        };
+        }, [autoResize, maxRows, minRows, textareaRef]);
 
         useEffect(() => {
             if (autoResize) {
                 adjustHeight();
             }
-        }, [autoResize]);
+        }, [adjustHeight, autoResize]);
 
         return (
             <div className={cn('formax-textarea-wrapper', className)}>
@@ -98,4 +98,4 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     }
 );
 
-Textarea.displayName = 'Textarea'; 
+Textarea.displayName = 'Textarea';

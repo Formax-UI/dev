@@ -30,6 +30,8 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
     ) => {
         const datePickerId = id || name;
         const hasError = !!error;
+        void ref;
+        void register;
 
         return (
             <div className={cn('formax-datepicker-wrapper', className)}>
@@ -85,4 +87,4 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
     }
 );
 
-DatePicker.displayName = 'DatePicker'; 
+DatePicker.displayName = 'DatePicker';

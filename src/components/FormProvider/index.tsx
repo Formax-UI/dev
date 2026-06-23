@@ -11,6 +11,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     if (formMethods && formMethods.formState) {
         try {
             // Try to import React Hook Form dynamically without eval
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
             const rhf = require('react-hook-form');
             const RHFFormProvider = rhf.FormProvider;
 
@@ -34,4 +35,4 @@ export const FormProvider: React.FC<FormProviderProps> = ({
             {children}
         </div>
     );
-}; 
+};

@@ -7,6 +7,9 @@ yarn-error.log*
 # Build outputs
 dist/
 build/
+public/
+docs/.next/
+docs/out/
 *.tsbuildinfo
 
 # Environment files
@@ -43,6 +46,10 @@ coverage/
 playground/.next/
 playground/out/
 
+# Test artifacts
+test-results/
+playwright-report/
+
 # Package lock files (use npm)
 yarn.lock
-pnpm-lock.yaml 
+pnpm-lock.yaml

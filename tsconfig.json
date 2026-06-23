@@ -20,7 +20,11 @@
         "jsx": "react-jsx",
         "declaration": true,
         "outDir": "./dist",
-        "declarationDir": "./dist"
+        "declarationDir": "./dist",
+        "types": [
+            "vitest/globals",
+            "@testing-library/jest-dom"
+        ]
     },
     "include": [
         "src"
@@ -28,6 +32,9 @@
     "exclude": [
         "node_modules",
         "dist",
-        "playground"
+        "playground",
+        "tests",
+        "src/**/*.test.ts",
+        "src/**/*.test.tsx"
     ]
 }

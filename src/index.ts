@@ -1,3 +1,6 @@
+// Formax UI v2 workflow API
+export * from './workflow';
+
 // Core Components
 export { Checkbox } from './components/Checkbox';
 export { DatePicker } from './components/DatePicker';

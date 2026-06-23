@@ -52,6 +52,31 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             return () => document.removeEventListener('mousedown', handleClickOutside);
         }, []);
 
+        useEffect(() => {
+            if (!isAsync || !loadOptions) {
+                return;
+            }
+
+            let isCurrent = true;
+            setLoading(true);
+
+            loadOptions(searchTerm)
+                .then((loadedOptions) => {
+                    if (isCurrent) {
+                        setAsyncOptions(loadedOptions);
+                    }
+                })
+                .finally(() => {
+                    if (isCurrent) {
+                        setLoading(false);
+                    }
+                });
+
+            return () => {
+                isCurrent = false;
+            };
+        }, [isAsync, loadOptions, searchTerm]);
+
         const handleOptionSelect = (option: SelectOption) => {
             if (isMulti) {
                 const isSelected = selectedOptions.find(selected => selected.value === option.value);
@@ -84,6 +109,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                         name={name}
                         className="sr-only"
                         disabled={disabled}
+                        multiple={isMulti}
                         aria-invalid={hasError}
                         {...(register ? register : {})}
                         {...rest}
@@ -118,12 +144,37 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
 
                     {isOpen && (
                         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                            {isSearchable && (
+                                <div className="p-2">
+                                    <input
+                                        type="search"
+                                        value={searchTerm}
+                                        onChange={(event) => setSearchTerm(event.target.value)}
+                                        placeholder="Search..."
+                                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-formax-500"
+                                    />
+                                </div>
+                            )}
+
+                            {loading && (
+                                <div className="px-3 py-2 text-sm text-gray-500">
+                                    Loading...
+                                </div>
+                            )}
+
                             {filteredOptions.map(option => (
                                 <button
                                     key={option.value}
                                     type="button"
                                     onClick={() => handleOptionSelect(option)}
-                                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+                                    disabled={option.disabled}
+                                    className={cn(
+                                        'w-full text-left px-3 py-2 text-sm hover:bg-gray-100',
+                                        {
+                                            'opacity-50 cursor-not-allowed': option.disabled,
+                                            'bg-formax-50 text-formax-700': selectedOptions.some(selected => selected.value === option.value),
+                                        }
+                                    )}
                                 >
                                     {option.label}
                                 </button>
@@ -144,4 +195,4 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     }
 );
 
-Select.displayName = 'Select'; 
+Select.displayName = 'Select';

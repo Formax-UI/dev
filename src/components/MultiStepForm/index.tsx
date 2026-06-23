@@ -16,7 +16,6 @@ export const MultiStepForm: React.FC<MultiStepFormProps> = ({
 
     const isFirstStep = currentStep === 0;
     const isLastStep = currentStep === steps.length - 1;
-    const canProceed = allowSkipSteps || completedSteps.has(currentStep);
 
     const handleNext = async () => {
         const step = steps[currentStep];
@@ -177,4 +176,4 @@ export const MultiStepForm: React.FC<MultiStepFormProps> = ({
     );
 };
 
-MultiStepForm.displayName = 'MultiStepForm'; 
+MultiStepForm.displayName = 'MultiStepForm';

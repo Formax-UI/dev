@@ -1,84 +1,387 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Formax UI Custom Styles */
-@layer base {
-
-    /* Form field focus styles */
-    .formax-focus-ring {
-        @apply focus:outline-none focus:ring-2 focus:ring-formax-500 focus:ring-offset-2;
-    }
-
-    /* Disabled state styles */
-    .formax-disabled {
-        @apply opacity-50 cursor-not-allowed;
-    }
+:root {
+  --formax-color-background: #ffffff;
+  --formax-color-foreground: #111827;
+  --formax-color-muted: #6b7280;
+  --formax-color-border: #d1d5db;
+  --formax-color-surface: #f9fafb;
+  --formax-color-primary: #0ea5e9;
+  --formax-color-primary-foreground: #ffffff;
+  --formax-color-danger: #dc2626;
+  --formax-color-danger-surface: #fef2f2;
+  --formax-color-success: #16a34a;
+  --formax-radius: 0.5rem;
+  --formax-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --formax-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --formax-focus: 0 0 0 3px rgba(14, 165, 233, 0.25);
 }
 
-@layer components {
+.formax-form,
+.formax-form * {
+  box-sizing: border-box;
+}
 
-    /* Base form field styles */
-    .formax-field {
-        @apply block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm bg-white;
-        @apply placeholder-gray-400 text-gray-900;
-        @apply transition-colors duration-200 ease-in-out;
-        @apply hover:border-gray-400 focus:border-formax-500 focus:ring-formax-500;
-    }
+.formax-form {
+  color: var(--formax-color-foreground);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--formax-font);
+  gap: 1rem;
+}
 
-    .formax-field:disabled {
-        @apply formax-disabled;
-    }
+.formax-grid {
+  display: grid;
+  gap: 1rem;
+}
 
-    .formax-field.error {
-        @apply border-red-500 focus:border-red-500 focus:ring-red-500;
-    }
+@media (min-width: 720px) {
+  .formax-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
-    /* Label styles */
-    .formax-label {
-        @apply block text-sm font-medium text-gray-700 mb-1;
-    }
+.formax-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
 
-    .formax-label.required::after {
-        content: '*';
-        @apply text-red-500 ml-1;
-    }
+.formax-label {
+  color: var(--formax-color-foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+}
 
-    /* Error message styles */
-    .formax-error {
-        @apply text-sm text-red-600 mt-1;
-    }
+.formax-label.required::after,
+.formax-label-required::after {
+  color: var(--formax-color-danger);
+  content: " *";
+}
 
-    /* Help text styles */
-    .formax-help {
-        @apply text-sm text-gray-500 mt-1;
-    }
+.formax-description,
+.formax-help {
+  color: var(--formax-color-muted);
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  margin: 0;
+}
 
-    /* Button styles */
-    .formax-btn {
-        @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md;
-        @apply transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2;
-        @apply disabled:opacity-50 disabled:cursor-not-allowed;
-    }
+.formax-control,
+.formax-field {
+  appearance: none;
+  background: var(--formax-color-background);
+  border: 1px solid var(--formax-color-border);
+  border-radius: var(--formax-radius);
+  box-shadow: var(--formax-shadow);
+  color: var(--formax-color-foreground);
+  display: block;
+  font: inherit;
+  min-height: 2.5rem;
+  padding: 0.55rem 0.75rem;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  width: 100%;
+}
 
-    .formax-btn-primary {
-        @apply bg-formax-600 text-white hover:bg-formax-700 focus:ring-formax-500;
-    }
+.formax-control::placeholder,
+.formax-field::placeholder {
+  color: #9ca3af;
+}
 
-    .formax-btn-secondary {
-        @apply bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500;
-    }
+.formax-control:focus,
+.formax-field:focus {
+  border-color: var(--formax-color-primary);
+  box-shadow: var(--formax-focus);
+  outline: none;
+}
 
-    .formax-btn-outline {
-        @apply bg-white text-formax-600 border border-formax-600 hover:bg-formax-50 focus:ring-formax-500;
-    }
+.formax-control[aria-invalid="true"],
+.formax-field.error {
+  border-color: var(--formax-color-danger);
+}
 
-    /* Size variants */
-    .formax-btn-sm {
-        @apply px-3 py-1.5 text-xs;
-    }
+.formax-control:disabled,
+.formax-field:disabled,
+.formax-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 
-    .formax-btn-lg {
-        @apply px-6 py-3 text-base;
-    }
+.formax-textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.formax-error {
+  color: var(--formax-color-danger);
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  margin: 0.125rem 0 0;
+}
+
+.formax-error-summary {
+  background: var(--formax-color-danger-surface);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: var(--formax-radius);
+  color: var(--formax-color-danger);
+  padding: 1rem;
+}
+
+.formax-error-summary-title {
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.formax-error-summary-list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.formax-section {
+  border: 1px solid var(--formax-color-border);
+  border-radius: calc(var(--formax-radius) + 0.125rem);
+  padding: 1rem;
+}
+
+.formax-section-header {
+  margin-bottom: 1rem;
+}
+
+.formax-section-title {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.formax-section-description {
+  color: var(--formax-color-muted);
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0;
+}
+
+.formax-section-content {
+  display: grid;
+  gap: 1rem;
+}
+
+.formax-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.formax-actions-left {
+  justify-content: flex-start;
+}
+
+.formax-actions-right {
+  justify-content: flex-end;
+}
+
+.formax-actions-between {
+  justify-content: space-between;
+}
+
+.formax-button,
+.formax-btn {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--formax-radius);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.55rem 1rem;
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.formax-button:focus,
+.formax-btn:focus {
+  box-shadow: var(--formax-focus);
+  outline: none;
+}
+
+.formax-button-primary,
+.formax-btn-primary {
+  background: var(--formax-color-primary);
+  color: var(--formax-color-primary-foreground);
+}
+
+.formax-button-secondary,
+.formax-btn-secondary {
+  background: var(--formax-color-surface);
+  border-color: var(--formax-color-border);
+  color: var(--formax-color-foreground);
+}
+
+.formax-btn-outline {
+  background: transparent;
+  border-color: var(--formax-color-primary);
+  color: var(--formax-color-primary);
+}
+
+.formax-btn-sm {
+  font-size: 0.75rem;
+  min-height: 2rem;
+  padding: 0.35rem 0.75rem;
+}
+
+.formax-btn-lg {
+  font-size: 1rem;
+  min-height: 3rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.formax-choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.formax-choice-list-horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.formax-choice {
+  align-items: center;
+  color: var(--formax-color-foreground);
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.formax-switch {
+  background: #d1d5db;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  height: 1.5rem;
+  padding: 0.125rem;
+  position: relative;
+  transition: background 150ms ease;
+  width: 2.75rem;
+}
+
+.formax-switch.is-checked {
+  background: var(--formax-color-primary);
+}
+
+.formax-switch-thumb {
+  background: #ffffff;
+  border-radius: 999px;
+  box-shadow: var(--formax-shadow);
+  display: block;
+  height: 1.25rem;
+  transition: transform 150ms ease;
+  width: 1.25rem;
+}
+
+.formax-switch.is-checked .formax-switch-thumb {
+  transform: translateX(1.25rem);
+}
+
+.formax-date-range {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 560px) {
+  .formax-date-range {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.formax-date-range label {
+  color: var(--formax-color-muted);
+  display: grid;
+  font-size: 0.8125rem;
+  gap: 0.25rem;
+}
+
+.formax-file {
+  padding: 0.45rem 0.75rem;
+}
+
+.formax-otp {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.formax-otp-input {
+  border: 1px solid var(--formax-color-border);
+  border-radius: var(--formax-radius);
+  font: inherit;
+  height: 2.75rem;
+  text-align: center;
+  width: 2.75rem;
+}
+
+.formax-stepper {
+  display: grid;
+  gap: 1rem;
+}
+
+.formax-stepper-list {
+  display: grid;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 720px) {
+  .formax-stepper-list {
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  }
+}
+
+.formax-stepper-button {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--formax-color-border);
+  border-radius: var(--formax-radius);
+  color: var(--formax-color-muted);
+  cursor: pointer;
+  display: flex;
+  gap: 0.625rem;
+  padding: 0.75rem;
+  text-align: left;
+  width: 100%;
+}
+
+.formax-stepper-item.is-active .formax-stepper-button {
+  border-color: var(--formax-color-primary);
+  color: var(--formax-color-foreground);
+}
+
+.formax-stepper-index {
+  align-items: center;
+  background: var(--formax-color-surface);
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  height: 1.75rem;
+  justify-content: center;
+  width: 1.75rem;
+}
+
+.formax-stepper-title,
+.formax-stepper-description {
+  display: block;
+}
+
+.formax-stepper-title {
+  font-weight: 700;
+}
+
+.formax-stepper-description {
+  color: var(--formax-color-muted);
+  font-size: 0.8125rem;
+}
+
+.formax-stepper-panel {
+  display: grid;
+  gap: 1rem;
 }

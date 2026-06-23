@@ -39,7 +39,7 @@ export const RadioGroup = forwardRef<HTMLFieldSetElement, RadioGroupProps>(
                         'space-y-2': direction === 'vertical',
                     }
                 )}>
-                    {options.map((option, index) => {
+                    {options.map((option) => {
                         const optionId = `${name}-${option.value}`;
 
                         return (
@@ -96,4 +96,4 @@ export const RadioGroup = forwardRef<HTMLFieldSetElement, RadioGroupProps>(
     }
 );
 
-RadioGroup.displayName = 'RadioGroup'; 
+RadioGroup.displayName = 'RadioGroup';

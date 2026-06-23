@@ -19,8 +19,8 @@ import Link from 'next/link';
 const features = [
     {
         icon: Zap,
-        title: 'Forms-Focused',
-        description: 'Dedicated to solving form-related UI challenges with specialized components.',
+        title: 'Workflow-Focused',
+        description: 'Built around complete React Hook Form and Zod workflows, not just isolated inputs.',
         color: 'text-yellow-600'
     },
     {
@@ -32,7 +32,7 @@ const features = [
     {
         icon: Palette,
         title: 'Beautiful Design',
-        description: 'Modern styling with Tailwind CSS and customizable themes.',
+        description: 'CSS-variable styling that works without requiring Tailwind in consumer apps.',
         color: 'text-purple-600'
     },
     {
@@ -50,16 +50,16 @@ const features = [
     {
         icon: Users,
         title: 'Developer Friendly',
-        description: 'Works seamlessly with React Hook Form, Formik, and standalone.',
+        description: 'Typed field components, schema forms, and optional DeepSeek-assisted config generation.',
         color: 'text-indigo-600'
     }
 ];
 
 const stats = [
-    { label: 'Components', value: '11' },
-    { label: 'Bundle Size', value: '514KB' },
-    { label: 'TypeScript', value: '100%' },
-    { label: 'Test Coverage', value: '95%' }
+    { label: 'Workflow APIs', value: '9+' },
+    { label: 'Field Components', value: '14+' },
+    { label: 'Styling', value: 'CSS vars' },
+    { label: 'Automation', value: 'CI ready' }
 ];
 
 export default function HomePage() {
@@ -93,7 +93,7 @@ export default function HomePage() {
                                 Formax <span className="text-blue-200">UI</span>
                             </h1>
                             <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto text-balance">
-                                The only UI library you need for building beautiful and accessible forms in React
+                                Production-ready React form workflows for React Hook Form, Zod, and modern dashboards
                             </p>
 
                             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -316,4 +316,4 @@ function ContactForm() {
             </section>
         </div>
     );
-} 
+}

@@ -4,6 +4,7 @@ import {
   FieldValues,
   FormProvider as HookFormProvider,
   Path,
+  Resolver,
   SubmitHandler,
   UseFormProps,
   UseFormReturn,
@@ -16,29 +17,32 @@ import { cn } from '../utils/cn';
 type FormaxFormContextValue = {
   formId: string;
 };
+type FormaxUseFormReturn<TValues extends FieldValues> = UseFormReturn<TValues, unknown, TValues>;
+type FormaxUseFormProps<TValues extends FieldValues> = UseFormProps<TValues, unknown, TValues>;
 
 const FormaxFormContext = createContext<FormaxFormContextValue | null>(null);
 
 export type FormaxFormProps<TValues extends FieldValues = FieldValues> = {
-  children: React.ReactNode | ((methods: UseFormReturn<TValues>) => React.ReactNode);
+  children: React.ReactNode | ((methods: FormaxUseFormReturn<TValues>) => React.ReactNode);
   className?: string;
-  defaultValues?: UseFormProps<TValues>['defaultValues'];
-  form?: UseFormReturn<TValues>;
+  defaultValues?: FormaxUseFormProps<TValues>['defaultValues'];
+  form?: FormaxUseFormReturn<TValues>;
   id?: string;
-  mode?: UseFormProps<TValues>['mode'];
+  mode?: FormaxUseFormProps<TValues>['mode'];
   noValidate?: boolean;
-  onSubmit: (values: TValues, methods: UseFormReturn<TValues>) => void | Promise<void>;
+  onSubmit: (values: TValues, methods: FormaxUseFormReturn<TValues>) => void | Promise<void>;
   schema?: z.ZodType<TValues>;
 };
 
 export function useFormaxForm<TValues extends FieldValues = FieldValues>(
-  options: Omit<UseFormProps<TValues>, 'resolver'> & { schema?: z.ZodType<TValues> } = {}
+  options: Omit<FormaxUseFormProps<TValues>, 'resolver'> & { schema?: z.ZodType<TValues> } = {}
 ) {
   const { schema, ...formOptions } = options;
+  const resolver = schema ? (zodResolver(schema as never) as Resolver<TValues, unknown, TValues>) : undefined;
 
-  return useForm<TValues>({
+  return useForm<TValues, unknown, TValues>({
     ...formOptions,
-    resolver: schema ? zodResolver(schema) : undefined,
+    resolver,
   });
 }
 

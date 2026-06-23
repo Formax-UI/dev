@@ -48,7 +48,23 @@ export type SchemaFormConfig = {
   submitLabel?: string;
 };
 
-type ZodObjectLike = z.ZodObject<z.ZodRawShape>;
+type SchemaShape = Record<string, z.ZodTypeAny>;
+type ZodDefLike = {
+  entries?: Record<string, string>;
+  in?: z.ZodTypeAny;
+  innerType?: z.ZodTypeAny;
+  schema?: z.ZodTypeAny;
+  shape?: unknown;
+  type?: unknown;
+  typeName?: unknown;
+  values?: readonly string[];
+};
+type ZodLike = z.ZodTypeAny & {
+  _def?: ZodDefLike;
+  isOptional?: () => boolean;
+  options?: readonly string[];
+  shape?: unknown;
+};
 
 const labelsFromName = (name: string) =>
   name
@@ -57,24 +73,64 @@ const labelsFromName = (name: string) =>
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
     .trim();
 
-const getShape = (schema: z.ZodTypeAny) => {
-  if (schema instanceof z.ZodObject) {
-    return (schema as ZodObjectLike).shape;
-  }
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 
-  return {};
+const readShape = (value: unknown) => (typeof value === 'function' ? value() : value);
+
+const getKind = (schema: z.ZodTypeAny) => {
+  const def = (schema as ZodLike)._def;
+
+  if (typeof def?.type === 'string') return def.type;
+  if (typeof def?.typeName === 'string') return def.typeName;
+
+  return schema.constructor.name;
 };
 
-const isOptional = (schema: z.ZodTypeAny) =>
-  schema instanceof z.ZodOptional || schema instanceof z.ZodNullable || schema.isOptional();
+const isKind = (schema: z.ZodTypeAny, ...kinds: string[]) => kinds.includes(getKind(schema));
+
+const getShape = (schema: z.ZodTypeAny): SchemaShape => {
+  const schemaLike = schema as ZodLike;
+  const shape = readShape(schemaLike.shape) || readShape(schemaLike._def?.shape);
+
+  return isRecord(shape) ? (shape as SchemaShape) : {};
+};
+
+const isOptional = (schema: z.ZodTypeAny) => {
+  const schemaLike = schema as ZodLike;
+
+  return (
+    isKind(schema, 'optional', 'nullable', 'ZodOptional', 'ZodNullable') ||
+    Boolean(schemaLike.isOptional?.())
+  );
+};
 
 const unwrap = (schema: z.ZodTypeAny): z.ZodTypeAny => {
-  if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable || schema instanceof z.ZodDefault) {
-    return unwrap(schema._def.innerType);
-  }
+  const schemaLike = schema as ZodLike;
+  const wrappedSchema =
+    schemaLike._def?.innerType ||
+    schemaLike._def?.schema ||
+    schemaLike._def?.in;
 
-  if (schema instanceof z.ZodEffects) {
-    return unwrap(schema._def.schema);
+  if (
+    wrappedSchema &&
+    isKind(
+      schema,
+      'optional',
+      'nullable',
+      'default',
+      'catch',
+      'effects',
+      'pipe',
+      'ZodOptional',
+      'ZodNullable',
+      'ZodDefault',
+      'ZodCatch',
+      'ZodEffects',
+      'ZodPipeline'
+    )
+  ) {
+    return unwrap(wrappedSchema);
   }
 
   return schema;
@@ -88,10 +144,10 @@ const inferComponent = (name: string, schema: z.ZodTypeAny): SchemaFieldComponen
   if (lowerName.includes('phone') || lowerName.includes('mobile')) return 'phone';
   if (lowerName.includes('otp') || lowerName.includes('code')) return 'otp';
   if (lowerName.includes('date')) return 'date';
-  if (unwrapped instanceof z.ZodBoolean) return 'checkbox';
-  if (unwrapped instanceof z.ZodArray) return 'multiselect';
-  if (unwrapped instanceof z.ZodEnum) return 'select';
-  if (unwrapped instanceof z.ZodString && lowerName.includes('message')) return 'textarea';
+  if (isKind(unwrapped, 'boolean', 'ZodBoolean')) return 'checkbox';
+  if (isKind(unwrapped, 'array', 'ZodArray')) return 'multiselect';
+  if (isKind(unwrapped, 'enum', 'ZodEnum')) return 'select';
+  if (isKind(unwrapped, 'string', 'ZodString') && lowerName.includes('message')) return 'textarea';
 
   return 'text';
 };
@@ -99,8 +155,11 @@ const inferComponent = (name: string, schema: z.ZodTypeAny): SchemaFieldComponen
 const optionsFromSchema = (schema: z.ZodTypeAny): FormaxOption[] | undefined => {
   const unwrapped = unwrap(schema);
 
-  if (unwrapped instanceof z.ZodEnum) {
-    return unwrapped.options.map((value: string) => ({ label: labelsFromName(value), value }));
+  if (isKind(unwrapped, 'enum', 'ZodEnum')) {
+    const schemaLike = unwrapped as ZodLike;
+    const values = schemaLike.options || schemaLike._def?.values || Object.keys(schemaLike._def?.entries || {});
+
+    return values.map((value) => ({ label: labelsFromName(value), value }));
   }
 
   return undefined;

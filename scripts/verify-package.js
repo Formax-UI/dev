@@ -14,12 +14,25 @@ const requiredFiles = [
   'ai.d.ts',
   'styles.css',
 ];
+const sizeBudgets = {
+  'ai.js': 15_000,
+  'ai.mjs': 15_000,
+  'index.js': 85_000,
+  'index.mjs': 85_000,
+  'styles.css': 40_000,
+};
 
 for (const file of requiredFiles) {
   const absolute = path.join(dist, file);
 
   if (!fs.existsSync(absolute)) {
     throw new Error(`Missing package artifact: dist/${file}`);
+  }
+
+  const budget = sizeBudgets[file];
+
+  if (budget && fs.statSync(absolute).size > budget) {
+    throw new Error(`Package artifact dist/${file} exceeds the ${budget} byte size budget.`);
   }
 }
 

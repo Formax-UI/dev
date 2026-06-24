@@ -10,6 +10,7 @@ const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'));
 
 const external = [
   ...Object.keys(packageJson.peerDependencies || {}),
+  ...Object.keys(packageJson.dependencies || {}),
   '@hookform/resolvers/zod',
   'react/jsx-runtime',
 ];

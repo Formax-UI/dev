@@ -47,7 +47,7 @@ export function Footer() {
                             </span>
                         </div>
                         <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                            Beautiful and accessible form components for React applications.
+                            Production-ready React form workflows for React Hook Form, Zod, and modern dashboards.
                         </p>
                         <div className="flex space-x-4">
                             <Link

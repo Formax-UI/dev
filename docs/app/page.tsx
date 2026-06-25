@@ -1,6 +1,6 @@
 'use client';
 
-import { SubmitButton, TextInput } from 'formax-ui';
+import { Form, FormActions, TextField } from 'formax-ui';
 import { motion } from 'framer-motion';
 import {
     ArrowRight,
@@ -15,6 +15,7 @@ import {
     Zap
 } from 'lucide-react';
 import Link from 'next/link';
+import { z } from 'zod';
 
 const features = [
     {
@@ -61,6 +62,11 @@ const stats = [
     { label: 'Styling', value: 'CSS vars' },
     { label: 'Automation', value: 'CI ready' }
 ];
+
+const contactSchema = z.object({
+    name: z.string().min(1),
+    email: z.string().email(),
+});
 
 export default function HomePage() {
     return (
@@ -113,17 +119,12 @@ export default function HomePage() {
                                         <span className="text-blue-200 text-sm font-medium">Quick Install</span>
                                         <button className="text-blue-200 hover:text-white text-sm">Copy</button>
                                     </div>
-                                    <code className="text-white font-mono">npm install formax-ui</code>
+                                    <code className="text-white font-mono">npm install formax-ui react-hook-form zod</code>
                                 </div>
                             </div>
                         </motion.div>
                     </div>
                 </div>
-
-                {/* Floating elements */}
-                <div className="absolute top-20 left-10 w-8 h-8 bg-white/10 rounded-full animate-float"></div>
-                <div className="absolute top-40 right-20 w-6 h-6 bg-white/10 rounded-full animate-float" style={{ animationDelay: '2s' }}></div>
-                <div className="absolute bottom-40 left-20 w-4 h-4 bg-white/10 rounded-full animate-float" style={{ animationDelay: '4s' }}></div>
             </section>
 
             {/* Stats Section */}
@@ -200,17 +201,17 @@ export default function HomePage() {
                                 Get started in seconds
                             </h2>
                             <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-                                Import components and start building beautiful forms immediately. No complex setup required.
+                                Add typed validation, accessible fields, and submit handling without wiring every input manually.
                             </p>
 
                             <div className="space-y-4">
                                 <div className="flex items-center space-x-3">
                                     <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                                    <span className="text-gray-700 dark:text-gray-300">Zero configuration required</span>
+                                    <span className="text-gray-700 dark:text-gray-300">React Hook Form context built in</span>
                                 </div>
                                 <div className="flex items-center space-x-3">
                                     <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                                    <span className="text-gray-700 dark:text-gray-300">Works with existing React projects</span>
+                                    <span className="text-gray-700 dark:text-gray-300">Zod schema validation and schema rendering</span>
                                 </div>
                                 <div className="flex items-center space-x-3">
                                     <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
@@ -233,52 +234,40 @@ export default function HomePage() {
                         >
                             <div className="space-y-6">
                                 <div className="code-block">
-                                    <pre><code>{`import { TextInput, SubmitButton } from 'formax-ui';
+                                    <pre><code>{`import { Form, FormActions, TextField } from 'formax-ui';
+import { z } from 'zod';
+
+const schema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+});
 
 function ContactForm() {
   return (
-    <form>
-      <TextInput
-        label="Your Name"
-        name="name"
-        placeholder="Enter your name"
-        required
-      />
-      <TextInput
-        label="Email"
-        name="email"
-        type="email"
-        placeholder="your@email.com"
-        required
-      />
-      <SubmitButton>
-        Send Message
-      </SubmitButton>
-    </form>
+    <Form
+      schema={schema}
+      defaultValues={{ name: '', email: '' }}
+      onSubmit={async (values) => console.log(values)}
+    >
+      <TextField name="name" label="Your Name" required />
+      <TextField name="email" label="Email" type="email" required />
+      <FormActions submitLabel="Send Message" />
+    </Form>
   );
 }`}</code></pre>
                                 </div>
 
                                 <div className="mt-6 p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                                     <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Live Preview</h3>
-                                    <div className="space-y-4">
-                                        <TextInput
-                                            label="Your Name"
-                                            name="name"
-                                            placeholder="Enter your name"
-                                            required
-                                        />
-                                        <TextInput
-                                            label="Email"
-                                            name="email"
-                                            type="email"
-                                            placeholder="your@email.com"
-                                            required
-                                        />
-                                        <SubmitButton>
-                                            Send Message
-                                        </SubmitButton>
-                                    </div>
+                                    <Form
+                                        schema={contactSchema}
+                                        defaultValues={{ name: '', email: '' }}
+                                        onSubmit={async () => undefined}
+                                    >
+                                        <TextField name="name" label="Your Name" placeholder="Enter your name" required />
+                                        <TextField name="email" label="Email" type="email" placeholder="your@email.com" required />
+                                        <FormActions submitLabel="Send Message" />
+                                    </Form>
                                 </div>
                             </div>
                         </motion.div>

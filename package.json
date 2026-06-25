@@ -1,6 +1,6 @@
 {
     "name": "formax-ui",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "description": "Production-ready React form workflows for React Hook Form, Zod, and modern dashboards",
     "main": "dist/index.js",
     "module": "dist/index.mjs",

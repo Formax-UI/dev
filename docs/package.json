@@ -10,22 +10,22 @@
         "export": "next build && next export"
     },
     "dependencies": {
+        "@hookform/resolvers": "^5.4.0",
+        "formax-ui": "file:..",
+        "framer-motion": "^10.16.16",
         "next": "14.2.35",
+        "prismjs": "^1.29.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-hook-form": "^7.48.2",
-        "@hookform/resolvers": "^3.3.2",
-        "zod": "^3.22.4",
-        "framer-motion": "^10.16.16",
-        "prismjs": "^1.29.0",
         "react-syntax-highlighter": "^16.1.1",
-        "formax-ui": "file:.."
+        "zod": "^4.4.3"
     },
     "devDependencies": {
         "@types/node": "^20.10.5",
+        "@types/prismjs": "^1.26.3",
         "@types/react": "^18.2.45",
         "@types/react-dom": "^18.2.18",
-        "@types/prismjs": "^1.26.3",
         "@types/react-syntax-highlighter": "^15.5.11",
         "autoprefixer": "^10.4.16",
         "eslint": "^8.56.0",

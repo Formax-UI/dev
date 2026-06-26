@@ -1,6 +1,6 @@
 'use client';
 
-import { Form, FormActions, TextField } from 'formax-ui';
+import { Form, FormActions, TextField } from 'formax-ui/workflow';
 import { motion } from 'framer-motion';
 import {
     ArrowRight,

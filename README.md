@@ -34,22 +34,30 @@ import 'formax-ui/styles.css';
 ## Package Exports
 
 ```ts
-import { Form, TextField, SchemaForm } from 'formax-ui';
-import { createDeepSeekFormAssistant } from 'formax-ui/ai';
+import { Form, TextField, SchemaForm } from 'formax-ui/workflow';
+import { TextInput, SubmitButton } from 'formax-ui/legacy';
+import { createFormAssistant, deepSeekProvider } from 'formax-ui/ai';
+import { signupTemplate } from 'formax-ui/templates';
+import { useFormAutosave } from 'formax-ui/intelligence';
 import 'formax-ui/styles.css';
 ```
 
 Available exports:
 
-- `formax-ui` - v2 workflow API plus temporary legacy aliases
-- `formax-ui/ai` - optional server-side DeepSeek helper
+- `formax-ui` - backward-compatible root export
+- `formax-ui/workflow` - lean v2 workflow API for new code
+- `formax-ui/legacy` - temporary v1 aliases
+- `formax-ui/ai` - optional server-side AI provider helpers
+- `formax-ui/templates` - production workflow templates
+- `formax-ui/intelligence` - autosave, draft restore, analytics, and guards
 - `formax-ui/styles.css` - package stylesheet
+- `formax-ui/legacy.css` - legacy DatePicker stylesheet
 - `formax-ui/package.json` - package metadata for tooling
 
 ## Quick Start
 
 ```tsx
-import { Form, FormActions, PasswordField, TextField } from 'formax-ui';
+import { Form, FormActions, PasswordField, TextField } from 'formax-ui/workflow';
 import { z } from 'zod';
 
 const signupSchema = z.object({
@@ -79,7 +87,7 @@ export function SignupForm() {
 Use `SchemaForm` when a Zod schema should create the form layout automatically.
 
 ```tsx
-import { SchemaForm } from 'formax-ui';
+import { SchemaForm } from 'formax-ui/workflow';
 import { z } from 'zod';
 
 const checkoutSchema = z.object({
@@ -122,14 +130,16 @@ export function CheckoutForm() {
 - otp/code names as OTP fields
 - date-like names as date fields
 - booleans as checkbox fields
-- arrays as multi-select fields
+- arrays as repeatable array fields
 - enums as select fields
 - optional/nullable fields as not required
+
+Schema configs also support sections, conditional visibility, disabled/read-only rules, and async option loaders.
 
 ## Multi-Step Forms
 
 ```tsx
-import { Form, StepperForm, TextField } from 'formax-ui';
+import { Form, StepperForm, TextField } from 'formax-ui/workflow';
 
 <Form schema={schema} defaultValues={{ email: '', backupEmail: '' }} onSubmit={onSubmit}>
   <StepperForm
@@ -184,13 +194,15 @@ import { Form, StepperForm, TextField } from 'formax-ui';
 
 ## Optional DeepSeek AI Helper
 
-The AI helper generates a safe JSON `SchemaForm` config from a prompt. Use it only on the server.
+The AI helper generates a validated JSON `SchemaForm` config from a prompt. Use it only on the server.
 
 ```ts
-import { createDeepSeekFormAssistant } from 'formax-ui/ai';
+import { createFormAssistant, deepSeekProvider } from 'formax-ui/ai';
 
-const assistant = createDeepSeekFormAssistant({
-  apiKey: process.env.DEEPSEEK_API_KEY!,
+const assistant = createFormAssistant({
+  provider: deepSeekProvider({
+    apiKey: process.env.DEEPSEEK_API_KEY!,
+  }),
 });
 
 export async function POST(request: Request) {
@@ -205,7 +217,39 @@ export async function POST(request: Request) {
 }
 ```
 
-Do not expose a DeepSeek API key in browser code. The package does not read environment variables automatically; your server route owns that decision.
+Do not expose model API keys in browser code. The package does not read environment variables automatically; your server route owns that decision.
+
+Provider helpers are available for DeepSeek, OpenAI, Anthropic, Gemini, and Vercel-style adapters.
+
+## Templates And Intelligence
+
+```tsx
+import { SchemaForm } from 'formax-ui/workflow';
+import { checkoutTemplate } from 'formax-ui/templates';
+
+<SchemaForm
+  schema={checkoutTemplate.schema}
+  defaultValues={checkoutTemplate.defaultValues}
+  config={checkoutTemplate.config}
+  onSubmit={handleCheckout}
+/>;
+```
+
+```tsx
+import { useFormAutosave, useFormAnalytics } from 'formax-ui/intelligence';
+
+useFormAutosave({ key: 'checkout-draft' });
+useFormAnalytics({ onEvent: (event) => console.log(event) });
+```
+
+## CLI
+
+```bash
+npx formax-ui create-form signup
+npx formax-ui create-form checkout --out CheckoutForm.tsx
+```
+
+The CLI writes a copyable React starter that uses `SchemaForm`, `formax-ui/workflow`, and `formax-ui/templates`.
 
 ## Styling
 
@@ -222,18 +266,17 @@ Every field accepts `className`, and many field configs can be overridden in `Sc
 
 ## Package Size
 
-`formax-ui@2.0.3` externalizes runtime dependencies from the distributed JS bundle and verifies package budgets in CI.
+`formax-ui@2.1.0` ships focused workflow, legacy, AI, templates, and intelligence entrypoints with package-size budgets in CI.
 
 Current package shape:
 
-- packed package: about 95 KB
-- unpacked package: about 529 KB
-- ESM entry: about 51 KB before gzip
+- workflow ESM entry: about 32 KB before gzip
+- root ESM entry: about 58 KB before gzip
 - CSS: about 30 KB before gzip
 
 ## Migration From v1
 
-v1 components such as `TextInput`, `Textarea`, `Select`, and `SubmitButton` are still exported temporarily. New work should use v2 workflow components instead.
+v1 components such as `TextInput`, `Textarea`, `Select`, and `SubmitButton` are still exported temporarily from `formax-ui` and `formax-ui/legacy`. New work should use `formax-ui/workflow`.
 
 Before:
 
@@ -295,11 +338,11 @@ The repo publishes through GitHub Actions with npm provenance. Configure `NPM_TO
 
 Near-term:
 
-- split workflow and legacy exports so app bundles can avoid old component weight
-- add repeatable field arrays and conditional field visibility
-- add async validation and dependent field examples
+- add richer array item rendering helpers
+- add dependent validation examples
+- add visual Studio preview in docs/playground
 - add more production examples: checkout, onboarding, invoice, admin settings, uploads
-- add provider-agnostic AI config generation beyond DeepSeek
+- add more provider-specific AI examples
 
 Longer-term:
 

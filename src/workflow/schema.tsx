@@ -1,8 +1,9 @@
-import React from 'react';
-import { FieldValues } from 'react-hook-form';
+import React, { useEffect, useMemo, useState } from 'react';
+import { FieldValues, useFormContext } from 'react-hook-form';
 import { z } from 'zod';
-import { Form, FormActions, FormaxFormProps } from './Form';
+import { Form, FormActions, FormSection, FormaxFormProps } from './Form';
 import {
+  ArrayField,
   CheckboxField,
   DateField,
   FileUploadField,
@@ -18,6 +19,7 @@ import {
 } from './fields';
 
 export type SchemaFieldComponent =
+  | 'array'
   | 'checkbox'
   | 'date'
   | 'file'
@@ -33,20 +35,52 @@ export type SchemaFieldComponent =
 export type SchemaFieldConfig = {
   className?: string;
   component?: SchemaFieldComponent;
+  defaultItem?: Record<string, unknown>;
   description?: string;
+  disabled?: boolean;
+  disabledWhen?: FormaxCondition;
   hidden?: boolean;
   label?: string;
+  maxItems?: number;
+  minItems?: number;
   name: string;
   options?: FormaxOption[];
+  optionSource?: string;
   placeholder?: string;
+  readOnly?: boolean;
+  readOnlyWhen?: FormaxCondition;
   required?: boolean;
+  section?: string;
+  visibleWhen?: FormaxCondition;
 };
 
 export type SchemaFormConfig = {
   fields?: Record<string, Partial<SchemaFieldConfig>>;
   layout?: 'single' | 'two-column';
+  sections?: Record<string, SchemaFormSectionConfig>;
   submitLabel?: string;
 };
+
+export type SchemaFormSectionConfig = {
+  className?: string;
+  description?: React.ReactNode;
+  title?: React.ReactNode;
+};
+
+export type FormaxCondition =
+  | { field: string; op: 'equals' | 'notEquals' | 'exists' | 'includes' | 'gt' | 'lt'; value?: unknown }
+  | { all: FormaxCondition[] }
+  | { any: FormaxCondition[] }
+  | { not: FormaxCondition };
+
+export type FormaxOptionLoaderContext<TValues extends FieldValues = FieldValues> = {
+  field: SchemaFieldConfig;
+  values: TValues;
+};
+
+export type FormaxOptionLoader<TValues extends FieldValues = FieldValues> = (
+  context: FormaxOptionLoaderContext<TValues>
+) => FormaxOption[] | Promise<FormaxOption[]>;
 
 type SchemaShape = Record<string, z.ZodTypeAny>;
 type ZodDefLike = {
@@ -72,6 +106,46 @@ const labelsFromName = (name: string) =>
     .replace(/[-_]/g, ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
     .trim();
+
+const getValueAtPath = (values: FieldValues, path: string) =>
+  path.split('.').reduce<unknown>((current, segment) => {
+    if (current && typeof current === 'object' && segment in current) {
+      return (current as Record<string, unknown>)[segment];
+    }
+
+    return undefined;
+  }, values);
+
+export function evaluateCondition(condition: FormaxCondition | undefined, values: FieldValues): boolean {
+  if (!condition) return true;
+
+  if ('all' in condition) return condition.all.every((item) => evaluateCondition(item, values));
+  if ('any' in condition) return condition.any.some((item) => evaluateCondition(item, values));
+  if ('not' in condition) return !evaluateCondition(condition.not, values);
+
+  const value = getValueAtPath(values, condition.field);
+
+  switch (condition.op) {
+    case 'equals':
+      return value === condition.value;
+    case 'notEquals':
+      return value !== condition.value;
+    case 'exists':
+      return value !== undefined && value !== null && value !== '';
+    case 'includes':
+      return Array.isArray(value)
+        ? value.includes(condition.value)
+        : typeof value === 'string' && typeof condition.value === 'string'
+          ? value.includes(condition.value)
+          : false;
+    case 'gt':
+      return Number(value) > Number(condition.value);
+    case 'lt':
+      return Number(value) < Number(condition.value);
+    default:
+      return false;
+  }
+}
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -145,7 +219,7 @@ const inferComponent = (name: string, schema: z.ZodTypeAny): SchemaFieldComponen
   if (lowerName.includes('otp') || lowerName.includes('code')) return 'otp';
   if (lowerName.includes('date')) return 'date';
   if (isKind(unwrapped, 'boolean', 'ZodBoolean')) return 'checkbox';
-  if (isKind(unwrapped, 'array', 'ZodArray')) return 'multiselect';
+  if (isKind(unwrapped, 'array', 'ZodArray')) return 'array';
   if (isKind(unwrapped, 'enum', 'ZodEnum')) return 'select';
   if (isKind(unwrapped, 'string', 'ZodString') && lowerName.includes('message')) return 'textarea';
 
@@ -189,10 +263,12 @@ export type SchemaFormProps<TValues extends FieldValues = FieldValues> = Omit<
   'children'
 > & {
   config?: SchemaFormConfig;
+  optionLoaders?: Record<string, FormaxOptionLoader<TValues>>;
 };
 
 export function SchemaForm<TValues extends FieldValues = FieldValues>({
   config = {},
+  optionLoaders,
   schema,
   ...formProps
 }: SchemaFormProps<TValues>) {
@@ -200,13 +276,91 @@ export function SchemaForm<TValues extends FieldValues = FieldValues>({
 
   return (
     <Form<TValues> schema={schema} {...formProps}>
-      <div className={config.layout === 'two-column' ? 'formax-grid formax-grid-2' : 'formax-grid'}>
-        {fields.map((field) => (
-          <SchemaField key={field.name} field={field} />
-        ))}
-      </div>
+      <SchemaFormContent config={config} fields={fields} optionLoaders={optionLoaders} />
       <FormActions submitLabel={config.submitLabel} />
     </Form>
+  );
+}
+
+function SchemaFormContent<TValues extends FieldValues = FieldValues>({
+  config,
+  fields,
+  optionLoaders,
+}: {
+  config: SchemaFormConfig;
+  fields: SchemaFieldConfig[];
+  optionLoaders?: Record<string, FormaxOptionLoader<TValues>>;
+}) {
+  const methods = useFormContext<TValues>();
+  const values = methods.watch();
+  const valuesKey = JSON.stringify(values);
+  const [loadedOptions, setLoadedOptions] = useState<Record<string, FormaxOption[]>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    const fieldsWithLoaders = fields.filter((field) => field.optionSource && optionLoaders?.[field.optionSource]);
+    const currentValues = methods.getValues();
+
+    fieldsWithLoaders.forEach((field) => {
+      const loader = optionLoaders?.[field.optionSource as string];
+
+      Promise.resolve(loader?.({ field, values: currentValues })).then((options) => {
+        if (!cancelled && options) {
+          setLoadedOptions((current) => ({ ...current, [field.name]: options }));
+        }
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fields, methods, optionLoaders, valuesKey]);
+
+  const visibleFields = useMemo(
+    () =>
+      fields
+        .filter((field) => !field.hidden && evaluateCondition(field.visibleWhen, values))
+        .map((field) => ({
+          ...field,
+          disabled: field.disabled || (field.disabledWhen ? evaluateCondition(field.disabledWhen, values) : false),
+          options: field.optionSource ? loadedOptions[field.name] || field.options || [] : field.options,
+          readOnly: field.readOnly || (field.readOnlyWhen ? evaluateCondition(field.readOnlyWhen, values) : false),
+        })),
+    [fields, loadedOptions, values]
+  );
+  const unsectionedFields = visibleFields.filter((field) => !field.section);
+  const sectionNames = Array.from(new Set(visibleFields.map((field) => field.section).filter(Boolean))) as string[];
+  const gridClassName = config.layout === 'two-column' ? 'formax-grid formax-grid-2' : 'formax-grid';
+
+  return (
+    <>
+      {unsectionedFields.length > 0 && (
+        <div className={gridClassName}>
+          {unsectionedFields.map((field) => (
+            <SchemaField key={field.name} field={field} />
+          ))}
+        </div>
+      )}
+      {sectionNames.map((sectionName) => {
+        const section = config.sections?.[sectionName];
+        const sectionFields = visibleFields.filter((field) => field.section === sectionName);
+
+        return (
+          <FormSection
+            key={sectionName}
+            className={section?.className}
+            description={section?.description}
+            title={section?.title || labelsFromName(sectionName)}
+          >
+            <div className={gridClassName}>
+              {sectionFields.map((field) => (
+                <SchemaField key={field.name} field={field} />
+              ))}
+            </div>
+          </FormSection>
+        );
+      })}
+    </>
   );
 }
 
@@ -214,21 +368,39 @@ function SchemaField({ field }: { field: SchemaFieldConfig }) {
   const common = {
     className: field.className,
     description: field.description,
+    disabled: field.disabled,
     label: field.label,
     name: field.name,
     placeholder: field.placeholder,
+    readOnly: field.readOnly,
     required: field.required,
   };
 
   switch (field.component) {
+    case 'array':
+      return (
+        <ArrayField
+          {...common}
+          defaultItem={field.defaultItem}
+          maxItems={field.maxItems}
+          minItems={field.minItems}
+        >
+          {(item) => (
+            <TextField
+              name={`${item.name}.value`}
+              label={`${field.label || labelsFromName(field.name)} ${item.index + 1}`}
+            />
+          )}
+        </ArrayField>
+      );
     case 'checkbox':
-      return <CheckboxField {...common} />;
+      return <CheckboxField {...common} disabled={field.disabled || field.readOnly} />;
     case 'date':
       return <DateField {...common} />;
     case 'file':
-      return <FileUploadField {...common} />;
+      return <FileUploadField {...common} disabled={field.disabled || field.readOnly} />;
     case 'multiselect':
-      return <MultiSelectField {...common} options={field.options || []} />;
+      return <MultiSelectField {...common} disabled={field.disabled || field.readOnly} options={field.options || []} />;
     case 'otp':
       return <OtpField {...common} />;
     case 'password':
@@ -236,9 +408,9 @@ function SchemaField({ field }: { field: SchemaFieldConfig }) {
     case 'phone':
       return <PhoneField {...common} />;
     case 'radio':
-      return <RadioGroupField {...common} options={field.options || []} />;
+      return <RadioGroupField {...common} disabled={field.disabled || field.readOnly} options={field.options || []} />;
     case 'select':
-      return <SelectField {...common} options={field.options || []} />;
+      return <SelectField {...common} disabled={field.disabled || field.readOnly} options={field.options || []} />;
     case 'textarea':
       return <TextareaField {...common} />;
     case 'text':

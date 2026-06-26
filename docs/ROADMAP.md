@@ -10,7 +10,8 @@ The package already provides:
 - Zod validation
 - typed field components
 - schema-driven rendering
-- optional DeepSeek config generation
+- focused `workflow`, `legacy`, `ai`, `templates`, and `intelligence` entrypoints
+- provider-based AI config generation
 - CSS-variable styling
 - CI, package tests, E2E tests, npm provenance publishing
 - package-size budgets
@@ -36,43 +37,20 @@ Formax UI should sit between code-first form libraries and no-code form builders
 
 ## Next Build Priorities
 
-1. Split package entrypoints.
-   - Add `formax-ui/workflow` for the lean v2 workflow API.
-   - Add `formax-ui/legacy` for old v1 aliases.
-   - Keep root compatibility for now, then document a migration window.
-
-2. Add advanced schema behavior.
-   - Conditional visibility.
-   - Dependent fields.
-   - Repeatable field arrays.
-   - Async option loaders.
-   - Async validation examples.
-
-3. Make AI provider-agnostic.
-   - Keep DeepSeek support.
-   - Add a provider adapter shape.
-   - Support OpenAI, Anthropic, Gemini, and Vercel AI SDK style adapters.
-   - Validate every generated config before rendering.
-
-4. Build a form config studio.
+1. Build a form config studio.
    - Prompt to config.
    - Edit labels, fields, layout, and validation hints.
    - Preview with `SchemaForm`.
    - Export React code and JSON config.
 
-5. Add production templates.
-   - Signup.
-   - Login.
-   - Checkout.
-   - SaaS onboarding.
-   - Admin settings.
-   - Invoice editor.
-   - File upload.
-   - Support/contact flow.
+2. Improve production depth.
+   - Richer array item rendering helpers.
+   - Dependent validation examples.
+   - More provider-specific AI examples.
+   - Design-system adapters for shadcn, MUI, Ant Design, and Mantine.
 
-6. Improve release confidence.
+3. Improve release confidence.
    - Add consumer fixture tests for Next.js and Vite.
-   - Add bundle-size tests for `formax-ui/workflow`.
    - Add browser accessibility E2E coverage for every template.
 
 ## AI Safety Rules
@@ -82,4 +60,3 @@ Formax UI should sit between code-first form libraries and no-code form builders
 - Validate generated configs before rendering.
 - Keep allowlists for supported field components.
 - Reject unknown component names, unsafe HTML, and unexpected config keys.
-

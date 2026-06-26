@@ -10,7 +10,9 @@ import {
   SchemaForm,
   TextField,
   createFormConfigFromZod,
+  evaluateCondition,
 } from '../index';
+import { invoiceTemplate, signupTemplate } from '../templates';
 
 describe('Formax v2 workflow API', () => {
   it('submits typed React Hook Form values validated by Zod', async () => {
@@ -87,6 +89,63 @@ describe('Formax v2 workflow API', () => {
 
     expect(screen.getByLabelText('Plan')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
+  });
+
+  it('evaluates serializable form conditions', () => {
+    expect(evaluateCondition({ field: 'plan', op: 'equals', value: 'pro' }, { plan: 'pro' })).toBe(true);
+    expect(evaluateCondition({ field: 'items', op: 'includes', value: 'a' }, { items: ['a'] })).toBe(true);
+    expect(evaluateCondition({ all: [{ field: 'seats', op: 'gt', value: 5 }] }, { seats: 10 })).toBe(true);
+    expect(evaluateCondition({ not: { field: 'status', op: 'equals', value: 'closed' } }, { status: 'open' })).toBe(true);
+  });
+
+  it('renders schema sections, conditional fields, disabled rules, and async options', async () => {
+    const schema = z.object({
+      country: z.string(),
+      plan: z.enum(['starter', 'pro']),
+      teamName: z.string().optional(),
+    });
+
+    render(
+      <SchemaForm
+        schema={schema}
+        defaultValues={{ country: '', plan: 'starter', teamName: '' }}
+        config={{
+          sections: {
+            account: { title: 'Account setup' },
+          },
+          fields: {
+            country: {
+              component: 'select',
+              label: 'Country',
+              optionSource: 'countries',
+              section: 'account',
+            },
+            teamName: {
+              disabledWhen: { field: 'plan', op: 'equals', value: 'starter' },
+              label: 'Team name',
+              visibleWhen: { field: 'plan', op: 'equals', value: 'starter' },
+            },
+          },
+        }}
+        optionLoaders={{
+          countries: async () => [{ label: 'United States', value: 'us' }],
+        }}
+        onSubmit={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('Account setup')).toBeInTheDocument();
+    expect(screen.getByLabelText('Team name')).toBeDisabled();
+    expect(await screen.findByRole('option', { name: 'United States' })).toBeInTheDocument();
+  });
+
+  it('ships production templates that render with SchemaForm', () => {
+    expect(signupTemplate.config.submitLabel).toBe('Create account');
+
+    render(<invoiceTemplate.ExampleComponent />);
+
+    expect(screen.getByText('Line items')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create invoice' })).toBeInTheDocument();
   });
 
   it('has no basic accessibility violations for a common form', async () => {

@@ -26,6 +26,7 @@ Generated from the v2 workflow source. Run `npm run docs:api` after public API c
 ## fields
 
 - `FormaxOption`
+- `ArrayFieldRenderItem`
 - `TextFieldProps`
 - `TextField`
 - `PasswordField`
@@ -48,12 +49,59 @@ Generated from the v2 workflow source. Run `npm run docs:api` after public API c
 - `OtpFieldProps`
 - `OtpField`
 - `PhoneField`
+- `ArrayFieldProps`
+- `ArrayField`
+- `FieldArray`
 
 ## schema
 
 - `SchemaFieldComponent`
 - `SchemaFieldConfig`
 - `SchemaFormConfig`
+- `SchemaFormSectionConfig`
+- `FormaxCondition`
+- `FormaxOptionLoaderContext`
+- `FormaxOptionLoader`
+- `evaluateCondition`
 - `createFormConfigFromZod`
 - `SchemaFormProps`
 - `SchemaForm`
+
+## ai
+
+- `FormaxAIGenerateInput`
+- `FormaxAIProvider`
+- `FormaxAIProviderOptions`
+- `DeepSeekFormAssistantOptions`
+- `GenerateFormConfigInput`
+- `validateFormConfig`
+- `createFormAssistant`
+- `deepSeekProvider`
+- `openAIProvider`
+- `anthropicProvider`
+- `geminiProvider`
+- `vercelAIProvider`
+- `createDeepSeekFormAssistant`
+
+## templates
+
+- `FormaxTemplate`
+- `signupTemplate`
+- `loginTemplate`
+- `checkoutTemplate`
+- `onboardingTemplate`
+- `adminSettingsTemplate`
+- `invoiceTemplate`
+- `fileUploadTemplate`
+- `supportTemplate`
+- `kycTemplate`
+- `formTemplates`
+
+## intelligence
+
+- `FormaxAnalyticsEvent`
+- `FormaxStorage`
+- `useFormAutosave`
+- `useDraftRestore`
+- `useUnsavedChangesGuard`
+- `useFormAnalytics`

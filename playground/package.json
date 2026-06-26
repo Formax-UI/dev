@@ -9,13 +9,13 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@hookform/resolvers": "^5.4.0",
+        "formax-ui": "file:..",
         "next": "14.2.35",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-hook-form": "^7.48.2",
-        "@hookform/resolvers": "^3.3.2",
-        "zod": "^3.22.4",
-        "formax-ui": "file:.."
+        "zod": "^4.4.3"
     },
     "devDependencies": {
         "@types/node": "^20.10.5",

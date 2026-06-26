@@ -299,6 +299,27 @@
   gap: 0.25rem;
 }
 
+.formax-array-field {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.formax-array-items {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.formax-array-item {
+  align-items: end;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.formax-array-item-content {
+  min-width: 0;
+}
+
 .formax-file {
   padding: 0.45rem 0.75rem;
 }

@@ -1,10 +1,13 @@
 {
     "name": "formax-ui",
-    "version": "2.0.3",
+    "version": "2.1.0",
     "description": "Production-ready React form workflows for React Hook Form, Zod, and modern dashboards",
     "main": "dist/index.js",
     "module": "dist/index.mjs",
     "types": "dist/index.d.ts",
+    "bin": {
+        "formax-ui": "dist/cli.js"
+    },
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
@@ -16,14 +19,36 @@
             "import": "./dist/ai.mjs",
             "require": "./dist/ai.js"
         },
+        "./workflow": {
+            "types": "./dist/workflow.d.ts",
+            "import": "./dist/workflow.mjs",
+            "require": "./dist/workflow.js"
+        },
+        "./legacy": {
+            "types": "./dist/legacy.d.ts",
+            "import": "./dist/legacy.mjs",
+            "require": "./dist/legacy.js"
+        },
+        "./templates": {
+            "types": "./dist/templates.d.ts",
+            "import": "./dist/templates.mjs",
+            "require": "./dist/templates.js"
+        },
+        "./intelligence": {
+            "types": "./dist/intelligence.d.ts",
+            "import": "./dist/intelligence.mjs",
+            "require": "./dist/intelligence.js"
+        },
         "./package.json": "./package.json",
-        "./styles.css": "./dist/styles.css"
+        "./styles.css": "./dist/styles.css",
+        "./legacy.css": "./dist/legacy.css"
     },
     "files": [
         "dist"
     ],
     "sideEffects": [
         "./dist/styles.css",
+        "./dist/legacy.css",
         "./src/styles/globals.css"
     ],
     "scripts": {

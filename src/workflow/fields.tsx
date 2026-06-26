@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Controller, FieldValues, Path, useFormContext } from 'react-hook-form';
+import { Controller, FieldValues, Path, useFieldArray, useFormContext } from 'react-hook-form';
 import { cn } from '../utils/cn';
 import { Field } from './Form';
 
@@ -8,6 +8,13 @@ export type FormaxOption = {
   disabled?: boolean;
   label: string;
   value: string;
+};
+
+export type ArrayFieldRenderItem = {
+  fieldId: string;
+  index: number;
+  name: string;
+  remove: () => void;
 };
 
 type FieldBaseProps<TValues extends FieldValues = FieldValues> = {
@@ -480,3 +487,74 @@ export function OtpField<TValues extends FieldValues = FieldValues>({
 export function PhoneField<TValues extends FieldValues = FieldValues>(props: Omit<TextFieldProps<TValues>, 'type'>) {
   return <TextField {...props} type="tel" inputMode="tel" autoComplete={props.autoComplete || 'tel'} />;
 }
+
+export type ArrayFieldProps<TValues extends FieldValues = FieldValues> = FieldBaseProps<TValues> & {
+  addLabel?: string;
+  children: (item: ArrayFieldRenderItem) => React.ReactNode;
+  defaultItem?: Record<string, unknown>;
+  maxItems?: number;
+  minItems?: number;
+  removeLabel?: string;
+};
+
+export function ArrayField<TValues extends FieldValues = FieldValues>({
+  addLabel = 'Add item',
+  children,
+  className,
+  defaultItem = {},
+  description,
+  disabled,
+  label,
+  maxItems,
+  minItems = 0,
+  name,
+  removeLabel = 'Remove',
+  required,
+}: ArrayFieldProps<TValues>) {
+  const methods = useFormContext<TValues>();
+  const { append, fields, remove } = useFieldArray({
+    control: methods.control,
+    name: name as never,
+  });
+
+  return (
+    <Field<TValues> className={className} description={description} label={label} name={name} required={required}>
+      {(field) => (
+        <div className="formax-array-field" aria-describedby={field.describedBy} aria-invalid={field.invalid}>
+          <div className="formax-array-items">
+            {fields.map((item, index) => (
+              <div key={item.id} className="formax-array-item">
+                <div className="formax-array-item-content">
+                  {children({
+                    fieldId: `${field.fieldId}-${index}`,
+                    index,
+                    name: `${String(name)}.${index}`,
+                    remove: () => remove(index),
+                  })}
+                </div>
+                <button
+                  type="button"
+                  className="formax-button formax-button-secondary"
+                  disabled={disabled || fields.length <= minItems}
+                  onClick={() => remove(index)}
+                >
+                  {removeLabel}
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="formax-button formax-button-secondary"
+            disabled={disabled || (typeof maxItems === 'number' && fields.length >= maxItems)}
+            onClick={() => append(defaultItem as never)}
+          >
+            {addLabel}
+          </button>
+        </div>
+      )}
+    </Field>
+  );
+}
+
+export const FieldArray = ArrayField;

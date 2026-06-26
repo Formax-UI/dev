@@ -19,7 +19,7 @@ import 'formax-ui/styles.css';
 Build forms with `Form` and typed field components. Fields read from React Hook Form context, so you do not pass loose `register` props around.
 
 ```tsx
-import { Form, FormActions, PasswordField, TextField } from 'formax-ui';
+import { Form, FormActions, PasswordField, TextField } from 'formax-ui/workflow';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -47,7 +47,7 @@ export function SignupForm() {
 Use `SchemaForm` for dashboards, admin tools, and generated workflows where a schema should drive rendering.
 
 ```tsx
-import { SchemaForm } from 'formax-ui';
+import { SchemaForm } from 'formax-ui/workflow';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -81,13 +81,15 @@ export function OnboardingForm() {
 
 ## AI-Assisted Config
 
-Use the AI subpath only on the server.
+Use the AI subpath only on the server. Every assistant validates generated config before returning it.
 
 ```ts
-import { createDeepSeekFormAssistant } from 'formax-ui/ai';
+import { createFormAssistant, deepSeekProvider } from 'formax-ui/ai';
 
-const assistant = createDeepSeekFormAssistant({
-  apiKey: process.env.DEEPSEEK_API_KEY!,
+const assistant = createFormAssistant({
+  provider: deepSeekProvider({
+    apiKey: process.env.DEEPSEEK_API_KEY!,
+  }),
 });
 
 export async function POST(request: Request) {
@@ -104,6 +106,27 @@ export async function POST(request: Request) {
 
 The browser should receive only the generated `SchemaFormConfig`, never the model API key.
 
+## Templates And Intelligence
+
+```tsx
+import { SchemaForm } from 'formax-ui/workflow';
+import { onboardingTemplate } from 'formax-ui/templates';
+
+<SchemaForm
+  schema={onboardingTemplate.schema}
+  defaultValues={onboardingTemplate.defaultValues}
+  config={onboardingTemplate.config}
+  onSubmit={async (values) => console.log(values)}
+/>;
+```
+
+```tsx
+import { useDraftRestore, useFormAutosave } from 'formax-ui/intelligence';
+
+useDraftRestore({ key: 'onboarding-draft' });
+useFormAutosave({ key: 'onboarding-draft' });
+```
+
 ## Styling
 
 Formax UI uses package CSS and variables. Tailwind is optional.
@@ -117,8 +140,7 @@ Formax UI uses package CSS and variables. Tailwind is optional.
 
 ## When To Use Which API
 
-- Use `Form` plus fields for product forms where developers control the layout.
+- Use `formax-ui/workflow` plus fields for product forms where developers control the layout.
 - Use `SchemaForm` for admin dashboards, generated forms, internal tools, and AI-assisted flows.
 - Use `StepperForm` when the workflow has clear stages.
 - Use `formax-ui/ai` only in trusted server code.
-

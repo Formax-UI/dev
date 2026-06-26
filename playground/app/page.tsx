@@ -18,7 +18,7 @@ import {
     SwitchToggle,
     TextInput,
     Textarea,
-} from 'formax-ui';
+} from 'formax-ui/legacy';
 
 // Validation schema
 const formSchema = z.object({

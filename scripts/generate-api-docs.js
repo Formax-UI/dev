@@ -4,14 +4,20 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const workflowDir = path.join(root, 'src', 'workflow');
 const outputFile = path.join(root, 'docs', 'API.md');
 
-const files = ['Form.tsx', 'fields.tsx', 'schema.tsx'];
-const exportPattern = /export\s+(?:function|type)\s+([A-Za-z0-9_]+)/g;
+const files = [
+  { file: 'src/workflow/Form.tsx', title: 'Form' },
+  { file: 'src/workflow/fields.tsx', title: 'fields' },
+  { file: 'src/workflow/schema.tsx', title: 'schema' },
+  { file: 'src/ai.ts', title: 'ai' },
+  { file: 'src/templates.tsx', title: 'templates' },
+  { file: 'src/intelligence.ts', title: 'intelligence' },
+];
+const exportPattern = /export\s+(?:function|type|const)\s+([A-Za-z0-9_]+)/g;
 
 const exportsByFile = files.map((file) => {
-  const source = fs.readFileSync(path.join(workflowDir, file), 'utf8');
+  const source = fs.readFileSync(path.join(root, file.file), 'utf8');
   const names = [];
   let match = exportPattern.exec(source);
 
@@ -20,7 +26,7 @@ const exportsByFile = files.map((file) => {
     match = exportPattern.exec(source);
   }
 
-  return { file, names };
+  return { title: file.title, names };
 });
 
 const content = [
@@ -28,8 +34,8 @@ const content = [
   '',
   'Generated from the v2 workflow source. Run `npm run docs:api` after public API changes.',
   '',
-  ...exportsByFile.flatMap(({ file, names }) => [
-    `## ${file.replace(/\.tsx$/, '')}`,
+  ...exportsByFile.flatMap(({ title, names }) => [
+    `## ${title}`,
     '',
     ...names.map((name) => `- \`${name}\``),
     '',

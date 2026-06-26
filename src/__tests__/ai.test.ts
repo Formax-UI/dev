@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createDeepSeekFormAssistant } from '../ai';
+import {
+  createDeepSeekFormAssistant,
+  createFormAssistant,
+  deepSeekProvider,
+  validateFormConfig,
+} from '../ai';
 
 describe('createDeepSeekFormAssistant', () => {
   it('parses DeepSeek JSON form config responses', async () => {
@@ -42,5 +47,64 @@ describe('createDeepSeekFormAssistant', () => {
 
   it('requires server-side DeepSeek credentials', () => {
     expect(() => createDeepSeekFormAssistant({ apiKey: '' })).toThrow('DeepSeek API key');
+  });
+
+  it('supports the provider-based assistant API', async () => {
+    const assistant = createFormAssistant({
+      provider: {
+        generateConfig: async () => ({
+          fields: {
+            email: { component: 'text', label: 'Email' },
+          },
+          submitLabel: 'Start',
+        }),
+      },
+    });
+
+    await expect(assistant.generateConfig({ prompt: 'signup' })).resolves.toMatchObject({
+      fields: {
+        email: { label: 'Email' },
+      },
+    });
+  });
+
+  it('rejects unsafe generated config shapes', () => {
+    expect(() =>
+      validateFormConfig({
+        fields: {
+          body: {
+            component: 'script',
+            label: 'Bad',
+          },
+        },
+      })
+    ).toThrow('unsupported component');
+  });
+
+  it('exposes DeepSeek as a provider adapter', async () => {
+    const fetcher = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                fields: {
+                  email: { component: 'text', label: 'Email' },
+                },
+              }),
+            },
+          },
+        ],
+      }),
+    })) as unknown as typeof fetch;
+
+    const provider = deepSeekProvider({ apiKey: 'test-key', fetcher });
+    await expect(provider.generateConfig({ prompt: 'signup' })).resolves.toMatchObject({
+      fields: {
+        email: { label: 'Email' },
+      },
+    });
   });
 });

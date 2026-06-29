@@ -1,4 +1,10 @@
 import { SchemaFieldComponent, SchemaFormConfig } from './workflow/schema';
+import {
+  FormaxWorkflowConfig,
+  createWorkflowFromPrompt,
+  normalizeFormaxWorkflow,
+  validateFormaxWorkflow,
+} from './studio-core';
 
 export type FormaxAIGenerateInput = {
   audience?: string;
@@ -19,6 +25,15 @@ export type FormaxAIProviderOptions = {
 
 export type DeepSeekFormAssistantOptions = FormaxAIProviderOptions;
 export type GenerateFormConfigInput = FormaxAIGenerateInput;
+export type FormaxAIImproveWorkflowInput = {
+  instruction: string;
+  workflow: FormaxWorkflowConfig;
+};
+
+export type FormaxAIGenerateCopyInput = {
+  tone?: 'friendly' | 'professional' | 'direct';
+  workflow: FormaxWorkflowConfig;
+};
 
 type ChatCompletionResponse = {
   choices?: Array<{
@@ -106,7 +121,7 @@ export function validateFormConfig(config: unknown): SchemaFormConfig {
   const root = assertPlainObject(config, 'AI returned an invalid Formax config.');
   const fields = assertPlainObject(root.fields, 'AI returned a config without fields.');
 
-  if (root.layout && root.layout !== 'single' && root.layout !== 'two-column') {
+  if (root.layout && root.layout !== 'single' && root.layout !== 'two-column' && root.layout !== 'responsive-grid') {
     throw new Error('AI returned an unsupported layout.');
   }
 
@@ -141,6 +156,80 @@ export function createFormAssistant({ provider }: { provider: FormaxAIProvider }
     async generateConfig(input: FormaxAIGenerateInput): Promise<SchemaFormConfig> {
       return validateFormConfig(await provider.generateConfig(input));
     },
+    async generateWorkflow(input: FormaxAIGenerateInput): Promise<FormaxWorkflowConfig> {
+      const output = await provider.generateConfig(input);
+
+      if (output && typeof output === 'object' && 'config' in output) {
+        const result = validateFormaxWorkflow(output);
+
+        if (!result.success) {
+          throw new Error(result.errors.map((issue) => `${issue.path}: ${issue.message}`).join('\n'));
+        }
+
+        return result.workflow;
+      }
+
+      return normalizeFormaxWorkflow({
+        config: validateFormConfig(output),
+        description: `Generated from prompt: ${input.prompt}`,
+        name: input.prompt.slice(0, 72) || 'Generated workflow',
+      });
+    },
+    async improveWorkflow({ instruction, workflow }: FormaxAIImproveWorkflowInput): Promise<FormaxWorkflowConfig> {
+      const output = await provider.generateConfig({
+        prompt: `${instruction}\n\nCurrent workflow JSON:\n${JSON.stringify(workflow, null, 2)}`,
+      });
+      const candidate =
+        output && typeof output === 'object' && 'config' in output
+          ? output
+          : {
+              ...workflow,
+              config: validateFormConfig(output),
+              description: workflow.description,
+              id: workflow.id,
+              name: workflow.name,
+            };
+      const result = validateFormaxWorkflow(candidate);
+
+      if (!result.success) {
+        throw new Error(result.errors.map((issue) => `${issue.path}: ${issue.message}`).join('\n'));
+      }
+
+      return result.workflow;
+    },
+    explainWorkflow(workflow: FormaxWorkflowConfig): string {
+      const fieldCount = Object.keys(workflow.config.fields || {}).length;
+      const sectionCount = Object.keys(workflow.config.sections || {}).length;
+      const stepCount = workflow.steps?.length || 0;
+
+      return `${workflow.name} is a ${fieldCount}-field Formax workflow${
+        sectionCount ? ` organized into ${sectionCount} sections` : ''
+      }${stepCount ? ` and ${stepCount} steps` : ''}. It uses Zod validation and renders with SchemaForm or WorkflowForm.`;
+    },
+    generateTestCases(workflow: FormaxWorkflowConfig): string[] {
+      const fields = Object.keys(workflow.config.fields || {});
+
+      return [
+        `renders ${workflow.name} with ${fields.length} fields`,
+        'shows validation errors on invalid submit',
+        'submits valid values through the onSubmit handler',
+        ...(workflow.steps?.length ? ['moves forward and backward through workflow steps'] : []),
+        ...(fields.some((field) => workflow.config.fields?.[field]?.visibleWhen)
+          ? ['applies conditional visibility rules']
+          : []),
+      ];
+    },
+    generateCopy({ tone = 'professional', workflow }: FormaxAIGenerateCopyInput) {
+      const adjective = tone === 'friendly' ? 'simple' : tone === 'direct' ? 'fast' : 'production-ready';
+
+      return {
+        description: workflow.description || `${workflow.name} generated with Formax UI.`,
+        headline: `${workflow.name}`,
+        submitLabel: workflow.config.submitLabel || 'Submit',
+        summary: `A ${adjective} form workflow with validated fields, accessible UI, and copyable React output.`,
+      };
+    },
+    createWorkflowFromPrompt,
   };
 }
 

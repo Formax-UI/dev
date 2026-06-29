@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FieldValues, useFormContext } from 'react-hook-form';
 import { z } from 'zod';
-import { Form, FormActions, FormSection, FormaxFormProps } from './Form';
+import { Form, FormActions, FormSection, FormaxFormProps, StepperForm } from './Form';
 import {
   ArrayField,
   CheckboxField,
@@ -50,14 +50,23 @@ export type SchemaFieldConfig = {
   readOnly?: boolean;
   readOnlyWhen?: FormaxCondition;
   required?: boolean;
+  requiredWhen?: FormaxCondition;
   section?: string;
   visibleWhen?: FormaxCondition;
 };
 
+export type FormaxStepConfig = {
+  description?: React.ReactNode;
+  fields: string[];
+  id: string;
+  title: React.ReactNode;
+};
+
 export type SchemaFormConfig = {
   fields?: Record<string, Partial<SchemaFieldConfig>>;
-  layout?: 'single' | 'two-column';
+  layout?: 'single' | 'two-column' | 'responsive-grid';
   sections?: Record<string, SchemaFormSectionConfig>;
+  steps?: FormaxStepConfig[];
   submitLabel?: string;
 };
 
@@ -277,10 +286,13 @@ export function SchemaForm<TValues extends FieldValues = FieldValues>({
   return (
     <Form<TValues> schema={schema} {...formProps}>
       <SchemaFormContent config={config} fields={fields} optionLoaders={optionLoaders} />
-      <FormActions submitLabel={config.submitLabel} />
+      {!config.steps?.length && <FormActions submitLabel={config.submitLabel} />}
     </Form>
   );
 }
+
+export const WorkflowForm = SchemaForm;
+export const WorkflowStepper = StepperForm;
 
 function SchemaFormContent<TValues extends FieldValues = FieldValues>({
   config,
@@ -325,12 +337,40 @@ function SchemaFormContent<TValues extends FieldValues = FieldValues>({
           disabled: field.disabled || (field.disabledWhen ? evaluateCondition(field.disabledWhen, values) : false),
           options: field.optionSource ? loadedOptions[field.name] || field.options || [] : field.options,
           readOnly: field.readOnly || (field.readOnlyWhen ? evaluateCondition(field.readOnlyWhen, values) : false),
+          required: field.required || (field.requiredWhen ? evaluateCondition(field.requiredWhen, values) : false),
         })),
     [fields, loadedOptions, values]
   );
   const unsectionedFields = visibleFields.filter((field) => !field.section);
   const sectionNames = Array.from(new Set(visibleFields.map((field) => field.section).filter(Boolean))) as string[];
-  const gridClassName = config.layout === 'two-column' ? 'formax-grid formax-grid-2' : 'formax-grid';
+  const gridClassName =
+    config.layout === 'two-column'
+      ? 'formax-grid formax-grid-2'
+      : config.layout === 'responsive-grid'
+        ? 'formax-grid formax-grid-responsive'
+        : 'formax-grid';
+
+  if (config.steps?.length) {
+    const fieldsByName = new Map(visibleFields.map((field) => [field.name, field]));
+
+    return (
+      <StepperForm
+        steps={config.steps.map((step) => ({
+          ...step,
+          content: (
+            <div className={gridClassName}>
+              {step.fields
+                .map((fieldName) => fieldsByName.get(fieldName))
+                .filter(Boolean)
+                .map((field) => (
+                  <SchemaField key={field?.name} field={field as SchemaFieldConfig} />
+                ))}
+            </div>
+          ),
+        }))}
+      />
+    );
+  }
 
   return (
     <>
@@ -361,6 +401,17 @@ function SchemaFormContent<TValues extends FieldValues = FieldValues>({
         );
       })}
     </>
+  );
+}
+
+export function WorkflowSummary({ title = 'Review your answers' }: { title?: string }) {
+  const methods = useFormContext();
+
+  return (
+    <section className="formax-workflow-summary">
+      <h2 className="formax-section-title">{title}</h2>
+      <pre>{JSON.stringify(methods.getValues(), null, 2)}</pre>
+    </section>
   );
 }
 

@@ -13,6 +13,8 @@ const files = [
   { file: 'src/ai.ts', title: 'ai' },
   { file: 'src/templates.tsx', title: 'templates' },
   { file: 'src/intelligence.ts', title: 'intelligence' },
+  { file: 'src/studio-core.ts', title: 'studio-core' },
+  { file: 'src/adapters.ts', title: 'adapters' },
 ];
 const exportPattern = /export\s+(?:function|type|const)\s+([A-Za-z0-9_]+)/g;
 

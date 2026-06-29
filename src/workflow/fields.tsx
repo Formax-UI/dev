@@ -558,3 +558,4 @@ export function ArrayField<TValues extends FieldValues = FieldValues>({
 }
 
 export const FieldArray = ArrayField;
+export const ArrayObjectField = ArrayField;

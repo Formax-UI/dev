@@ -1,6 +1,6 @@
 {
     "name": "formax-ui",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "description": "Production-ready React form workflows for React Hook Form, Zod, and modern dashboards",
     "main": "dist/index.js",
     "module": "dist/index.mjs",
@@ -38,6 +38,16 @@
             "types": "./dist/intelligence.d.ts",
             "import": "./dist/intelligence.mjs",
             "require": "./dist/intelligence.js"
+        },
+        "./studio-core": {
+            "types": "./dist/studio-core.d.ts",
+            "import": "./dist/studio-core.mjs",
+            "require": "./dist/studio-core.js"
+        },
+        "./adapters": {
+            "types": "./dist/adapters.d.ts",
+            "import": "./dist/adapters.mjs",
+            "require": "./dist/adapters.js"
         },
         "./package.json": "./package.json",
         "./styles.css": "./dist/styles.css",

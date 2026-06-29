@@ -1,7 +1,8 @@
 import React from 'react';
 import { FieldValues } from 'react-hook-form';
 import { z } from 'zod';
-import { SchemaFormConfig, SchemaForm } from './workflow/schema';
+import { SchemaFormConfig, SchemaFieldConfig, SchemaForm, createFormConfigFromZod } from './workflow/schema';
+import { FormaxWorkflowConfig, normalizeFormaxWorkflow } from './studio-core';
 
 export type FormaxTemplate = {
   config: SchemaFormConfig;
@@ -10,18 +11,50 @@ export type FormaxTemplate = {
   ExampleComponent: () => React.ReactElement;
   id: string;
   schema: z.ZodType<FieldValues>;
+  studio: {
+    category: string;
+    prompt: string;
+  };
+  testCases: string[];
   title: string;
+  workflow: FormaxWorkflowConfig;
 };
 
 const createTemplate = ({
+  category = 'General',
   config,
   defaultValues,
   description,
   id,
+  prompt,
   schema,
+  testCases,
   title,
-}: Omit<FormaxTemplate, 'ExampleComponent' | 'schema'> & { schema: z.ZodTypeAny }): FormaxTemplate => {
+}: Omit<FormaxTemplate, 'ExampleComponent' | 'schema' | 'studio' | 'testCases' | 'workflow'> & {
+  category?: string;
+  prompt?: string;
+  schema: z.ZodTypeAny;
+  testCases?: string[];
+}): FormaxTemplate => {
   const typedSchema = schema as z.ZodType<FieldValues>;
+  const inferredFields = createFormConfigFromZod(schema, config).reduce<Record<string, Partial<SchemaFieldConfig>>>(
+    (fields, field) => {
+      fields[field.name] = field;
+      return fields;
+    },
+    {}
+  );
+  const workflowConfig = {
+    ...config,
+    fields: inferredFields,
+  };
+  const workflow = normalizeFormaxWorkflow({
+    config: workflowConfig,
+    defaultValues,
+    description,
+    id,
+    name: title,
+  });
   const template = {
     config,
     defaultValues,
@@ -37,6 +70,16 @@ const createTemplate = ({
         onSubmit={async () => undefined}
       />
     ),
+    studio: {
+      category,
+      prompt: prompt || `Create a ${title.toLowerCase()} form`,
+    },
+    testCases: testCases || [
+      `renders the ${title} template`,
+      `validates required ${title} fields`,
+      `submits valid ${title} values`,
+    ],
+    workflow,
   };
 
   return template;
@@ -215,6 +258,94 @@ export const kycTemplate = createTemplate({
   },
 });
 
+export const jobApplicationTemplate = createTemplate({
+  category: 'Hiring',
+  id: 'job-application',
+  title: 'Job application',
+  description: 'Candidate profile, role, portfolio, and resume upload.',
+  schema: z.object({
+    fullName: z.string().min(2),
+    email: z.string().email(),
+    role: z.enum(['designer', 'engineer', 'product', 'operations']),
+    portfolioUrl: z.string().optional(),
+    resume: z.any(),
+  }),
+  defaultValues: { email: '', fullName: '', portfolioUrl: '', resume: undefined, role: 'engineer' },
+  config: {
+    layout: 'two-column',
+    submitLabel: 'Submit application',
+    fields: {
+      resume: { component: 'file', label: 'Resume' },
+      role: { label: 'Role' },
+    },
+  },
+});
+
+export const eventRegistrationTemplate = createTemplate({
+  category: 'Events',
+  id: 'event-registration',
+  title: 'Event registration',
+  description: 'Attendee details, ticket type, and dietary notes.',
+  schema: z.object({
+    fullName: z.string().min(2),
+    email: z.string().email(),
+    ticketType: z.enum(['general', 'vip', 'workshop']),
+    dietaryNotes: z.string().optional(),
+  }),
+  defaultValues: { dietaryNotes: '', email: '', fullName: '', ticketType: 'general' },
+  config: {
+    layout: 'two-column',
+    submitLabel: 'Register',
+    fields: {
+      dietaryNotes: { component: 'textarea', label: 'Dietary notes' },
+      ticketType: { label: 'Ticket type' },
+    },
+  },
+});
+
+export const leadQualificationTemplate = createTemplate({
+  category: 'Sales',
+  id: 'lead-qualification',
+  title: 'Lead qualification',
+  description: 'Company, budget, timeline, and buying intent capture.',
+  schema: z.object({
+    companyName: z.string().min(2),
+    email: z.string().email(),
+    budget: z.enum(['under-10k', '10k-50k', '50k-plus']),
+    timeline: z.enum(['now', 'quarter', 'later']),
+    notes: z.string().optional(),
+  }),
+  defaultValues: { budget: '10k-50k', companyName: '', email: '', notes: '', timeline: 'quarter' },
+  config: {
+    layout: 'responsive-grid',
+    submitLabel: 'Qualify lead',
+    fields: {
+      notes: { component: 'textarea', label: 'Notes' },
+    },
+  },
+});
+
+export const productFeedbackTemplate = createTemplate({
+  category: 'Product',
+  id: 'product-feedback',
+  title: 'Product feedback',
+  description: 'Collect product rating, feedback, and follow-up permission.',
+  schema: z.object({
+    email: z.string().email().optional(),
+    rating: z.enum(['1', '2', '3', '4', '5']),
+    feedback: z.string().min(10),
+    followUp: z.boolean().optional(),
+  }),
+  defaultValues: { email: '', feedback: '', followUp: false, rating: '5' },
+  config: {
+    submitLabel: 'Send feedback',
+    fields: {
+      feedback: { component: 'textarea', label: 'Feedback' },
+      followUp: { component: 'checkbox', label: 'May we follow up?' },
+    },
+  },
+});
+
 export const formTemplates = [
   signupTemplate,
   loginTemplate,
@@ -225,4 +356,8 @@ export const formTemplates = [
   fileUploadTemplate,
   supportTemplate,
   kycTemplate,
+  jobApplicationTemplate,
+  eventRegistrationTemplate,
+  leadQualificationTemplate,
+  productFeedbackTemplate,
 ];

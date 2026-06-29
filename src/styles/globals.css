@@ -355,6 +355,10 @@
   .formax-stepper-list {
     grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   }
+
+  .formax-grid-responsive {
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
 }
 
 .formax-stepper-button {
@@ -405,4 +409,19 @@
 .formax-stepper-panel {
   display: grid;
   gap: 1rem;
+}
+
+.formax-workflow-summary {
+  background: var(--formax-color-surface);
+  border: 1px solid var(--formax-color-border);
+  border-radius: var(--formax-radius);
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.formax-workflow-summary pre {
+  margin: 0;
+  overflow: auto;
+  white-space: pre-wrap;
 }

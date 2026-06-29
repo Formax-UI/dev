@@ -52,11 +52,13 @@ Generated from the v2 workflow source. Run `npm run docs:api` after public API c
 - `ArrayFieldProps`
 - `ArrayField`
 - `FieldArray`
+- `ArrayObjectField`
 
 ## schema
 
 - `SchemaFieldComponent`
 - `SchemaFieldConfig`
+- `FormaxStepConfig`
 - `SchemaFormConfig`
 - `SchemaFormSectionConfig`
 - `FormaxCondition`
@@ -66,6 +68,9 @@ Generated from the v2 workflow source. Run `npm run docs:api` after public API c
 - `createFormConfigFromZod`
 - `SchemaFormProps`
 - `SchemaForm`
+- `WorkflowForm`
+- `WorkflowStepper`
+- `WorkflowSummary`
 
 ## ai
 
@@ -74,6 +79,8 @@ Generated from the v2 workflow source. Run `npm run docs:api` after public API c
 - `FormaxAIProviderOptions`
 - `DeepSeekFormAssistantOptions`
 - `GenerateFormConfigInput`
+- `FormaxAIImproveWorkflowInput`
+- `FormaxAIGenerateCopyInput`
 - `validateFormConfig`
 - `createFormAssistant`
 - `deepSeekProvider`
@@ -95,6 +102,10 @@ Generated from the v2 workflow source. Run `npm run docs:api` after public API c
 - `fileUploadTemplate`
 - `supportTemplate`
 - `kycTemplate`
+- `jobApplicationTemplate`
+- `eventRegistrationTemplate`
+- `leadQualificationTemplate`
+- `productFeedbackTemplate`
 - `formTemplates`
 
 ## intelligence
@@ -105,3 +116,34 @@ Generated from the v2 workflow source. Run `npm run docs:api` after public API c
 - `useDraftRestore`
 - `useUnsavedChangesGuard`
 - `useFormAnalytics`
+
+## studio-core
+
+- `FormaxWorkflowStep`
+- `FormaxIntegrationConfig`
+- `FormaxWorkflowConfig`
+- `FormaxWorkflowValidationIssue`
+- `FormaxWorkflowValidationResult`
+- `FormaxWorkflowDiff`
+- `CreateWorkflowFromPromptInput`
+- `GenerateReactFormCodeInput`
+- `validateFormaxWorkflow`
+- `normalizeFormaxWorkflow`
+- `createWorkflowFromPrompt`
+- `generateConfigJson`
+- `generateZodSchemaCode`
+- `schema`
+- `FormValues`
+- `generateReactFormCode`
+- `FormValues`
+- `diffWorkflowConfigs`
+
+## adapters
+
+- `FormaxAdapterFieldComponents`
+- `FormaxAdapter`
+- `createFormaxAdapter`
+- `shadcnAdapter`
+- `muiAdapter`
+- `antDesignAdapter`
+- `mantineAdapter`

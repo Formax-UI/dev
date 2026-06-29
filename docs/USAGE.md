@@ -127,6 +127,38 @@ useDraftRestore({ key: 'onboarding-draft' });
 useFormAutosave({ key: 'onboarding-draft' });
 ```
 
+## Studio Workflows
+
+Use `formax-ui/studio-core` when you need to generate, validate, diff, or export a workflow from a visual builder, CLI, or server-side AI route.
+
+```ts
+import {
+  createWorkflowFromPrompt,
+  generateReactFormCode,
+  validateFormaxWorkflow,
+} from 'formax-ui/studio-core';
+
+const workflow = createWorkflowFromPrompt({
+  prompt: 'Create a checkout workflow with billing fields',
+});
+
+const result = validateFormaxWorkflow(workflow);
+const code = generateReactFormCode({ config: workflow });
+```
+
+Open `/studio` in the docs app for prompt generation, template selection, live preview, field editing, JSON editing, and React/Zod/JSON export.
+
+## CLI
+
+```bash
+npx formax-ui create-form signup
+npx formax-ui create-form checkout --adapter shadcn
+npx formax-ui create-form "enterprise onboarding" --ai
+npx formax-ui studio
+```
+
+`create-form` writes `schema.ts`, `config.ts`, and `Form.tsx` into a starter folder.
+
 ## Styling
 
 Formax UI uses package CSS and variables. Tailwind is optional.
@@ -144,3 +176,4 @@ Formax UI uses package CSS and variables. Tailwind is optional.
 - Use `SchemaForm` for admin dashboards, generated forms, internal tools, and AI-assisted flows.
 - Use `StepperForm` when the workflow has clear stages.
 - Use `formax-ui/ai` only in trusted server code.
+- Use `formax-ui/studio-core` for visual builders, CLI exports, and workflow code generation.

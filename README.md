@@ -39,6 +39,8 @@ import { TextInput, SubmitButton } from 'formax-ui/legacy';
 import { createFormAssistant, deepSeekProvider } from 'formax-ui/ai';
 import { signupTemplate } from 'formax-ui/templates';
 import { useFormAutosave } from 'formax-ui/intelligence';
+import { createWorkflowFromPrompt, generateReactFormCode } from 'formax-ui/studio-core';
+import { shadcnAdapter } from 'formax-ui/adapters';
 import 'formax-ui/styles.css';
 ```
 
@@ -50,6 +52,8 @@ Available exports:
 - `formax-ui/ai` - optional server-side AI provider helpers
 - `formax-ui/templates` - production workflow templates
 - `formax-ui/intelligence` - autosave, draft restore, analytics, and guards
+- `formax-ui/studio-core` - pure workflow validation, generation, diffing, and export helpers
+- `formax-ui/adapters` - design-system adapter metadata for shadcn, MUI, Ant Design, and Mantine
 - `formax-ui/styles.css` - package stylesheet
 - `formax-ui/legacy.css` - legacy DatePicker stylesheet
 - `formax-ui/package.json` - package metadata for tooling
@@ -218,6 +222,42 @@ export async function POST(request: Request) {
 ```
 
 Do not expose model API keys in browser code. The package does not read environment variables automatically; your server route owns that decision.
+
+## Formax Studio Core
+
+`studio-core` powers visual builders and CLI exports without pulling UI dependencies into the main runtime.
+
+```ts
+import {
+  createWorkflowFromPrompt,
+  generateConfigJson,
+  generateReactFormCode,
+  generateZodSchemaCode,
+  validateFormaxWorkflow,
+} from 'formax-ui/studio-core';
+
+const workflow = createWorkflowFromPrompt({
+  prompt: 'Create a SaaS onboarding workflow',
+});
+
+const result = validateFormaxWorkflow(workflow);
+const reactCode = generateReactFormCode({ config: workflow });
+const schemaCode = generateZodSchemaCode(workflow);
+const json = generateConfigJson(workflow);
+```
+
+The docs app includes `/studio`, an AI-ready visual builder with prompt generation, template previews, field editing, JSON editing, live `SchemaForm` preview, and React/Zod/JSON export.
+
+## CLI
+
+```bash
+npx formax-ui create-form signup
+npx formax-ui create-form checkout --adapter shadcn
+npx formax-ui create-form "enterprise onboarding" --ai
+npx formax-ui studio
+```
+
+`create-form` now writes copyable starter files: `schema.ts`, `config.ts`, and `Form.tsx`.
 
 Provider helpers are available for DeepSeek, OpenAI, Anthropic, Gemini, and Vercel-style adapters.
 

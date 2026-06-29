@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   webServer: {
-    command: 'cd playground && npm run dev -- -p 3100',
+    command: 'cd docs && npm run dev -- -p 3100',
     port: 3100,
     reuseExistingServer: true,
     timeout: 120_000,

@@ -11,6 +11,9 @@ The package already provides:
 - typed field components
 - schema-driven rendering
 - focused `workflow`, `legacy`, `ai`, `templates`, and `intelligence` entrypoints
+- `studio-core` workflow validation, prompt generation, diffing, and export helpers
+- adapter metadata for shadcn, MUI, Ant Design, and Mantine targets
+- `/studio` visual builder in the docs app
 - provider-based AI config generation
 - CSS-variable styling
 - CI, package tests, E2E tests, npm provenance publishing
@@ -37,21 +40,22 @@ Formax UI should sit between code-first form libraries and no-code form builders
 
 ## Next Build Priorities
 
-1. Build a form config studio.
-   - Prompt to config.
-   - Edit labels, fields, layout, and validation hints.
-   - Preview with `SchemaForm`.
-   - Export React code and JSON config.
+1. Harden Formax Studio.
+   - Add drag-and-drop field ordering.
+   - Add richer condition editing.
+   - Add provider-backed AI routes behind server-only examples.
+   - Add import/export for workflow JSON files.
 
 2. Improve production depth.
    - Richer array item rendering helpers.
    - Dependent validation examples.
    - More provider-specific AI examples.
-   - Design-system adapters for shadcn, MUI, Ant Design, and Mantine.
+   - Runtime design-system adapters for shadcn, MUI, Ant Design, and Mantine.
 
 3. Improve release confidence.
    - Add consumer fixture tests for Next.js and Vite.
    - Add browser accessibility E2E coverage for every template.
+   - Add E2E coverage for Studio prompt, edit, preview, and export flows.
 
 ## AI Safety Rules
 

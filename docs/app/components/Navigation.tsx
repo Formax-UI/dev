@@ -13,6 +13,7 @@ import React, { useState } from 'react';
 const navigation = [
     { name: 'Home', href: '/' },
     { name: 'Documentation', href: '/docs' },
+    { name: 'Studio', href: '/studio' },
     { name: 'Components', href: '/components' },
     { name: 'Playground', href: '/playground' },
     { name: 'Examples', href: '/examples' },

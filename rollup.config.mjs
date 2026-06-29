@@ -89,6 +89,16 @@ export default [
     cjs: 'dist/intelligence.js',
     esm: 'dist/intelligence.mjs',
   }),
+  libraryConfig({
+    input: 'src/studio-core.ts',
+    cjs: 'dist/studio-core.js',
+    esm: 'dist/studio-core.mjs',
+  }),
+  libraryConfig({
+    input: 'src/adapters.ts',
+    cjs: 'dist/adapters.js',
+    esm: 'dist/adapters.mjs',
+  }),
   {
     input: 'src/cli.ts',
     output: {
@@ -122,5 +132,7 @@ export default [
   dtsConfig('dist/legacy.d.ts', 'dist/legacy.d.ts'),
   dtsConfig('dist/templates.d.ts', 'dist/templates.d.ts'),
   dtsConfig('dist/intelligence.d.ts', 'dist/intelligence.d.ts'),
+  dtsConfig('dist/studio-core.d.ts', 'dist/studio-core.d.ts'),
+  dtsConfig('dist/adapters.d.ts', 'dist/adapters.d.ts'),
   dtsConfig('dist/ai.d.ts', 'dist/ai.d.ts'),
 ];
